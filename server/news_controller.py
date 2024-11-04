@@ -54,7 +54,7 @@ async def get_words(article: ArticleDTO, words: List[str]) -> List[str]:
 
 
 @app.get("/index")
-async def get_by_index(articles: List[str], paragraph: int, line: int, type: IndexType) -> IndexDTO:
+async def get_by_index(articles: List[str], paragraph: int, line: int, index_type: IndexType) -> IndexDTO:
     return IndexDTO()
 
 
