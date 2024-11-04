@@ -44,8 +44,8 @@ async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool
 
 
 @app.get("/articles")
-async def get_articles(article: ArticleDTO) -> ArticleDTO:
-    return ArticleDTO()
+async def get_articles(article: ArticleDTO) -> List[ArticleDTO]:
+    return []
 
 
 @app.get("/words")
