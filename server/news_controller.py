@@ -1,7 +1,9 @@
+import json
 from typing import List
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 
+from bootstrap import Bootstrap
 from dto.index import IndexDTO
 from dto.stats import StatsDTO
 from dto.xml import XmlDTO
@@ -11,6 +13,7 @@ from model.phrase import Phrase
 from model.word_group import WordGroup
 
 app = FastAPI()
+service = Bootstrap().start()
 
 
 @app.get("/")
@@ -29,10 +32,14 @@ async def import_db(xml_dto: XmlDTO) -> bool:
     print(xml_dto.dbName)
     return True
 
-
-@app.post("/article")
-async def upload(article: ArticleDTO) -> bool:
-    return True
+@app.post("/articles")
+async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool:
+    try:
+        raw = json.loads(article)
+        article_dto = ArticleDTO(**raw)
+        return await service.upload_file(file, article_dto)
+    except:
+        print("hoax")
 
 
 @app.get("/articles")
