@@ -1,6 +1,6 @@
 import tempfile
 
-from fs.base import BaseFs
+from news_db.fs.base import BaseFs
 
 
 class LocalFs(BaseFs):

@@ -1,9 +1,9 @@
 from fastapi import UploadFile
 
-from dto.article import ArticleDTO
-from fs.base import BaseFs
-from jdbc.oracle import OracleJdbc
-from model.article import Article
+from news_db.dto.article import ArticleDTO
+from news_db.fs.base import BaseFs
+from news_db.jdbc.oracle import OracleJdbc
+from news_db.model.article import Article
 
 
 class NewsService:

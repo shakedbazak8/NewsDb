@@ -3,14 +3,14 @@ from typing import List
 
 from fastapi import FastAPI, UploadFile, File, Form
 
-from bootstrap import Bootstrap
-from dto.index import IndexDTO
-from dto.stats import StatsDTO
-from dto.xml import XmlDTO
-from dto.article import ArticleDTO
-from model.index_type import IndexType
-from model.phrase import Phrase
-from model.word_group import WordGroup
+from news_db.bootstrap import Bootstrap
+from news_db.dto.article import ArticleDTO
+from news_db.dto.index import IndexDTO
+from news_db.dto.stats import StatsDTO
+from news_db.dto.xml import XmlDTO
+from news_db.model.index_type import IndexType
+from news_db.model.phrase import Phrase
+from news_db.model.word_group import WordGroup
 
 app = FastAPI()
 service = Bootstrap().start()

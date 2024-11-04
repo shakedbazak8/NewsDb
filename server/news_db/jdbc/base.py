@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from model.article import Article
+from news_db.model.article import Article
 
 
-class AbstractJdbc(ABC):
+class BaseJdbc(ABC):
 
     @abstractmethod
     def fetch(self, article: Article) -> Article:
