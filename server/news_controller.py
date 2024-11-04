@@ -38,8 +38,9 @@ async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool
         raw = json.loads(article)
         article_dto = ArticleDTO(**raw)
         return await service.upload_file(file, article_dto)
-    except:
-        print("hoax")
+    except Exception as e:
+        raise e
+
 
 
 @app.get("/articles")
