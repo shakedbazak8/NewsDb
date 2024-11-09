@@ -1,8 +1,11 @@
-from pydantic import BaseModel
+import uuid
 from datetime import date
+
+from pydantic import BaseModel
 
 
 class Article(BaseModel):
+    id: str = str(uuid.uuid4())
     publishDate: date
     page: int
     author: str

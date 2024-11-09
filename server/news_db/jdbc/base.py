@@ -8,3 +8,7 @@ class BaseJdbc(ABC):
     @abstractmethod
     def fetch(self, article: Article) -> Article:
         pass
+
+    @abstractmethod
+    def insert(self, article: Article) -> bool:
+        pass

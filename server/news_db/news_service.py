@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import UploadFile
 
 from news_db.dto.article import ArticleDTO
@@ -19,8 +21,7 @@ class NewsService:
             raw_article = article_dto.dict()
             raw_article.update({'filePath': path, 'wordNum': len(data)})
             article = Article(**raw_article)
-            print(article)
-            return True
+            return self._repository.insert(article)
         except Exception as e:
             print(e)
             return False
