@@ -1,5 +1,6 @@
 import json
-from typing import List
+from datetime import date
+from typing import List, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form
 
@@ -8,6 +9,7 @@ from news_db.dto.article import ArticleDTO
 from news_db.dto.index import IndexDTO
 from news_db.dto.stats import StatsDTO
 from news_db.dto.xml import XmlDTO
+from news_db.model.article import Article
 from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
@@ -44,8 +46,14 @@ async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool
 
 
 @app.get("/articles")
-async def get_articles(article: ArticleDTO) -> List[ArticleDTO]:
-    return []
+async def get_articles(publishDate: Optional[date] = None, page: Optional[int] = 0, author: Optional[str] = '',
+                       title: Optional[str] = '', subject: Optional[str] = '', paperName: Optional[str] = '',
+                       words: Optional[str] = '') -> List[Article]:
+    word_list = words.split(',')
+    dto_raw = {'publishDate': publishDate, 'page': page, 'author': author, 'title': title, 'subject': subject,
+               'paperName': paperName}
+    dto = ArticleDTO(**dto_raw)
+    return await service.get_articles(dto, word_list)
 
 
 @app.get("/words")
