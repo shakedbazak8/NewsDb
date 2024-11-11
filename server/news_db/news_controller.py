@@ -93,12 +93,12 @@ async def get_word_groups(name: Optional[str] = None) -> List[WordGroup]:
 
 @app.post("/phrases")
 async def create_phrase(phrase: Phrase) -> bool:
-    return True
+    return await service.create_phrase(phrase)
 
 
 @app.get("/phrases")
 async def get_phrases() -> List[Phrase]:
-    return []
+    return await service.get_phrases()
 
 
 @app.get("/stats")

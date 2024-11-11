@@ -6,6 +6,7 @@ from news_db.dto.article import ArticleDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.jdbc.base import BaseJdbc
 from news_db.model.article import Article
+from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
 
 
@@ -84,6 +85,32 @@ class OracleJdbc(BaseJdbc):
                 for row in rows:
                     row['words'] = row['words'].split(';')
                 return [WordGroup(**row) for row in rows]
+        except Exception as e:
+            print(e)
+            return []
+
+    def insert_phrase(self, phrase: Phrase) -> bool:
+        try:
+            sql = f"""INSERT INTO phrases (phrase, definition) VALUES (:phrase, :definition)"""
+            data = [{'phrase': phrase.phrase, 'definition': phrase.definition if phrase.definition else ''}]
+            print(sql)
+            with self._connection.cursor() as cursor:
+                cursor.executemany(sql, data)
+                self._connection.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+    def get_phrases(self) -> List[Phrase]:
+        try:
+            sql = f"""SELECT * FROM phrases"""
+            print(sql)
+            with self._connection.cursor() as cursor:
+                cursor.execute(sql)
+                rows = cursor.fetchall()
+                rows = [dict(zip(['phrase', 'definition'], row)) for row in rows]
+                return [Phrase(**row) for row in rows]
         except Exception as e:
             print(e)
             return []

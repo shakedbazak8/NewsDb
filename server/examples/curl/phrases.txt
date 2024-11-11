@@ -1,0 +1,10 @@
+curl --location --request POST 'http://localhost:8003/phrases' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "phrase": "HOAX POAX",
+    "definition": "not exist"
+}'
+
+
+
+curl --location --request GET 'http://localhost:8003/phrases'

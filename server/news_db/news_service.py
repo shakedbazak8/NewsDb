@@ -8,6 +8,7 @@ from news_db.dto.word_group import WordGroupDTO
 from news_db.fs.base import BaseFs
 from news_db.jdbc.oracle import OracleJdbc
 from news_db.model.article import Article
+from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
 from news_db.utils.word import extract_words
 
@@ -41,3 +42,10 @@ class NewsService:
 
     async def get_groups(self, dto: WordGroupDTO) -> List[WordGroup]:
         return self._repository.get_groups(dto)
+
+    async def create_phrase(self, phrase: Phrase):
+        # TODO: Update index
+        return self._repository.insert_phrase(phrase)
+
+    async def get_phrases(self):
+        return self._repository.get_phrases()

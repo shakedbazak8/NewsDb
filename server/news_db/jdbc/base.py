@@ -4,6 +4,7 @@ from typing import List
 from news_db.dto.article import ArticleDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.model.article import Article
+from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
 
 
@@ -31,6 +32,14 @@ class BaseJdbc(ABC):
 
     @abstractmethod
     def get_groups(self, group: WordGroupDTO) -> List[WordGroup]:
+        pass
+
+    @abstractmethod
+    def insert_phrase(self, phrase: Phrase) -> bool:
+        pass
+
+    @abstractmethod
+    def get_phrases(self) -> List[Phrase]:
         pass
 
 
