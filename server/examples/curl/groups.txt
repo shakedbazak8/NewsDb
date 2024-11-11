@@ -1,0 +1,17 @@
+curl --location --request POST 'http://localhost:8003/groups' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Pets",
+    "words": ["Cat", "Dog"]
+}'
+
+
+curl --location --request GET 'http://localhost:8003/groups?name=Pets'
+curl --location --request GET 'http://localhost:8003/groups'
+
+curl --location --request PUT 'http://localhost:8003/groups' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "name": "Pets",
+    "words": ["Cat", "Whale"]
+}'
