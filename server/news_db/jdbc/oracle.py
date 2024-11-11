@@ -135,17 +135,19 @@ class OracleJdbc(BaseJdbc):
                 words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
             group_indices = list(filter(lambda x: x.type == IndexType.GROUP, indices))
             for idx in group_indices:
-                words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+                groups.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
             phrase_indices = list(filter(lambda x: x.type == IndexType.PHRASE, indices))
             for idx in phrase_indices:
-                words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+                phrases.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
             word_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'word')"""
             group_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'group')"""
             phrase_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'phrase')"""
             with self._connection.cursor() as cursor:
                 cursor.executemany(word_sql, words)
-                cursor.executemany(group_sql, groups)
-                cursor.executemany(phrase_sql, phrases)
+                if groups:
+                    cursor.executemany(group_sql, groups)
+                if phrases:
+                    cursor.executemany(phrase_sql, phrases)
             self._connection.commit()
             return True
         except Exception as e:

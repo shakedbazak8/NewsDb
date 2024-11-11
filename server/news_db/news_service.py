@@ -13,7 +13,7 @@ from news_db.model.index import Index
 from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
-from news_db.utils.word import extract_words_with_paragraph_and_line
+from news_db.utils.index import extract_words_with_paragraph_and_line, get_phrase_indexes, get_group_indexes
 
 
 class NewsService:
@@ -32,13 +32,25 @@ class NewsService:
                 word_index['article_id'] = article_id
                 word_index['type'] = IndexType.WORD
             word_indices = [Index(**raw) for raw in word_indices]
+            groups = get_group_indexes(data, self._repository.get_groups(WordGroupDTO(name=None)))
+            group_indices = [group.dict() for group in groups]
+            for group_index in group_indices:
+                group_index['article_id'] = article_id
+                group_index['type'] = IndexType.GROUP
+            group_indices = [Index(**raw) for raw in group_indices]
+            phrases = get_phrase_indexes(data, self._repository.get_phrases())
+            phrase_indices = [phrase.dict() for phrase in phrases]
+            for phrase_index in phrase_indices:
+                phrase_index['article_id'] = article_id
+                phrase_index['type'] = IndexType.PHRASE
+            phrase_indices = [Index(**raw) for raw in phrase_indices]
             path = self._fs.store(data)
             raw_article = article_dto.dict()
             print(article_id)
             raw_article.update({'filePath': path, 'wordNum': len(words), 'id': article_id})
             article = Article(**raw_article) # TODO: store indexes.
             uploaded = self._repository.insert(article)
-            return self._repository.store_indices(word_indices) and uploaded
+            return self._repository.store_indices(word_indices + group_indices + phrase_indices) and uploaded
         except Exception as e:
             print(e)
             return False
