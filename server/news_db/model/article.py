@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 
 class Article(BaseModel):
-    id: Optional[int] = None
+    id: Optional[str] = None
     publishDate: date
     page: int
     author: str

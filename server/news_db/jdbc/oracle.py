@@ -6,6 +6,8 @@ from news_db.dto.article import ArticleDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.jdbc.base import BaseJdbc
 from news_db.model.article import Article
+from news_db.model.index import Index
+from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
 
@@ -15,11 +17,11 @@ class OracleJdbc(BaseJdbc):
     def __init__(self, dsn: str, user: str, password: str):
         self._connection = oracledb.connect(dsn=dsn, user=user, password=password)
 
-    def transaction(self, statements: List[str]) -> bool:
+    def transaction(self, statements) -> bool:
         try:
             with self._connection.cursor() as cursor:
                 for statement in statements:
-                    cursor.execute(statement)
+                    statement(cursor)
                 self._connection.commit()
                 return True
         except:
@@ -29,8 +31,16 @@ class OracleJdbc(BaseJdbc):
     def fetch(self, article: Article) -> Article:
         pass
 
-    def insert(self, article: Article) -> str:
-        return f"""INSERT INTO articles (publish_date, page, author, title, subject, paper_name, file_path, word_num) VALUES (TO_DATE('{article.publishDate}', 'YYYY-MM-DD'), {article.page}, '{article.author}', '{article.title}', '{article.subject}', '{article.paperName}', '{article.filePath}', {article.wordNum})"""
+    def insert(self, article: Article) -> bool:
+        sql = f"""INSERT INTO articles (id, publish_date, page, author, title, subject, paper_name, file_path, word_num) VALUES ('{article.id}', TO_DATE('{article.publishDate}', 'YYYY-MM-DD'), {article.page}, '{article.author}', '{article.title}', '{article.subject}', '{article.paperName}', '{article.filePath}', {article.wordNum})"""
+        try:
+            with self._connection.cursor() as cursor:
+                print(sql)
+                cursor.execute(sql)
+            self._connection.commit()
+            return True
+        except:
+            return False
 
     def find_all(self, article: ArticleDTO) -> List[Article]:
         raw = article.dict()
@@ -114,3 +124,32 @@ class OracleJdbc(BaseJdbc):
         except Exception as e:
             print(e)
             return []
+
+    def store_indices(self, indices: List[Index]) -> bool:
+        try:
+            word_indices = list(filter(lambda x: x.type == IndexType.WORD, indices))
+            words = []
+            groups = []
+            phrases = []
+            for idx in word_indices:
+                words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+            group_indices = list(filter(lambda x: x.type == IndexType.GROUP, indices))
+            for idx in group_indices:
+                words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+            phrase_indices = list(filter(lambda x: x.type == IndexType.PHRASE, indices))
+            for idx in phrase_indices:
+                words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+            word_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'word')"""
+            group_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'group')"""
+            phrase_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'phrase')"""
+            with self._connection.cursor() as cursor:
+                cursor.executemany(word_sql, words)
+                cursor.executemany(group_sql, groups)
+                cursor.executemany(phrase_sql, phrases)
+            self._connection.commit()
+            return True
+        except Exception as e:
+            print(e)
+            return False
+
+

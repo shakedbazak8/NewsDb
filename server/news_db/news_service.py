@@ -1,3 +1,4 @@
+import hashlib
 import uuid
 from typing import List
 
@@ -8,9 +9,11 @@ from news_db.dto.word_group import WordGroupDTO
 from news_db.fs.base import BaseFs
 from news_db.jdbc.oracle import OracleJdbc
 from news_db.model.article import Article
+from news_db.model.index import Index
+from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
-from news_db.utils.word import extract_words
+from news_db.utils.word import extract_words_with_paragraph_and_line
 
 
 class NewsService:
@@ -22,12 +25,20 @@ class NewsService:
     async def upload_file(self, file: UploadFile, article_dto: ArticleDTO) -> bool:
         try:
             data = (await file.read()).decode()
-            words = extract_words(data)
+            words = extract_words_with_paragraph_and_line(data)
+            article_id = str(uuid.uuid4())
+            word_indices = [word.dict() for word in words]
+            for word_index in word_indices:
+                word_index['article_id'] = article_id
+                word_index['type'] = IndexType.WORD
+            word_indices = [Index(**raw) for raw in word_indices]
             path = self._fs.store(data)
             raw_article = article_dto.dict()
-            raw_article.update({'filePath': path, 'wordNum': len(words)})
+            print(article_id)
+            raw_article.update({'filePath': path, 'wordNum': len(words), 'id': article_id})
             article = Article(**raw_article) # TODO: store indexes.
-            return self._repository.transaction([self._repository.insert(article)])
+            uploaded = self._repository.insert(article)
+            return self._repository.store_indices(word_indices) and uploaded
         except Exception as e:
             print(e)
             return False
