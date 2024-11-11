@@ -24,9 +24,7 @@ CREATE TABLE phrases (
     definition VARCHAR2(255)
 );
 
-CREATE OR REPLACE TYPE word_array AS VARRAY(100) OF VARCHAR2(255);
-
 CREATE TABLE groups (
     name VARCHAR2(255) NOT NULL,
-    word VARCHAR2(255)
+    word VARCHAR2(255) NOT NULL
 );
