@@ -4,7 +4,7 @@ from news_db.model.index_type import IndexType
 
 
 class Index(BaseModel):
-    file_id: int
+    article_id: str
     index: str
     line: int
     id: int

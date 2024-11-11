@@ -8,6 +8,7 @@ from news_db.bootstrap import Bootstrap
 from news_db.dto.article import ArticleDTO
 from news_db.dto.index import IndexDTO
 from news_db.dto.stats import StatsDTO
+from news_db.dto.word_group import WordGroupDTO
 from news_db.dto.xml import XmlDTO
 from news_db.model.article import Article
 from news_db.model.index_type import IndexType
@@ -52,7 +53,7 @@ async def get_articles(publishDate: Optional[date] = None, page: Optional[int] =
     word_list = words.split(',')
     dto_raw = {'publishDate': publishDate, 'page': page, 'author': author, 'title': title, 'subject': subject,
                'paperName': paperName}
-    dto = ArticleDTO(**dto_raw)
+    dto = ArticleDTO(**dto_raw) # TODO: words.
     return await service.get_articles(dto, word_list)
 
 
@@ -68,17 +69,26 @@ async def get_by_index(articles: List[str], paragraph: int, line: int, index_typ
 
 @app.post("/groups")
 async def create_word_group(word_group: WordGroup) -> bool:
-    return True
+    return await service.create_group(word_group)
 
 
 @app.put("/groups")
-async def create_word_group(word_group: WordGroup) -> bool:
-    return True
+async def update_word_group(word_group: WordGroup) -> bool:
+    dto = WordGroupDTO(**{'name': word_group.name})
+    groups = await service.get_groups(dto)
+    group = groups[0] if groups else None
+    print(group)
+    if group:
+        update_group = WordGroup(**{'name': word_group.name, 'words': list(set(word_group.words) - set(group.words))})
+        return await service.create_group(update_group)
+    else:
+        return await service.create_group(word_group)
 
 
 @app.get("/groups")
-async def get_word_groups() -> List[WordGroup]:
-    return []
+async def get_word_groups(name: Optional[str] = None) -> List[WordGroup]:
+    dto = WordGroupDTO(**{'name': name})
+    return await service.get_groups(dto)
 
 
 @app.post("/phrases")

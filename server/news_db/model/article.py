@@ -1,11 +1,11 @@
-import uuid
 from datetime import date
+from typing import Optional
 
 from pydantic import BaseModel
 
 
 class Article(BaseModel):
-    id: str = str(uuid.uuid4())
+    id: Optional[int] = None
     publishDate: date
     page: int
     author: str
