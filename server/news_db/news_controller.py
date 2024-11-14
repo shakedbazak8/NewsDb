@@ -27,12 +27,14 @@ async def index() -> str:
 
 @app.post("/export-db")
 async def export_db(xml_dto: XmlDTO) -> bool:
+    # TODO
     print(xml_dto.dbName)
     return True
 
 
 @app.post("/import-db")
 async def import_db(xml_dto: XmlDTO) -> bool:
+    # TODO
     print(xml_dto.dbName)
     return True
 
@@ -70,7 +72,6 @@ async def get_words(publishDate: Optional[date] = None, page: Optional[int] = 0,
 @app.get("/index")
 async def get_by_index(paragraph: int, line: int, index_type: str, articles: str) -> List[str]:
     articles = list(filter(lambda x: bool(x), articles.split(";")))
-    print(articles)
     mapping = defaultdict(lambda: IndexType.WORD)
     mapping['group'] = IndexType.GROUP
     mapping['phrase'] = IndexType.PHRASE
@@ -109,6 +110,7 @@ async def create_phrase(phrase: Phrase) -> bool:
 
 @app.get("/phrases")
 async def get_phrases() -> List[Phrase]:
+    # TODO
     return await service.get_phrases()
 
 
