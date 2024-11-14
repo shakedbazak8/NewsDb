@@ -3,6 +3,7 @@ from typing import List, Dict, Any, Optional
 import oracledb
 
 from news_db.dto.article import ArticleDTO
+from news_db.dto.index import IndexDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.jdbc.base import BaseJdbc
 from news_db.model.article import Article
@@ -171,6 +172,30 @@ class OracleJdbc(BaseJdbc):
         INNER JOIN article_ids ON article_ids.id = indices.article_id
         WHERE TYPE = 'word'
         """
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            return [l[0] for l in cursor.fetchall()]
+
+    def get_by_index(self, index: IndexDTO, articles: List[str]) -> List[str]:
+        mapping = {IndexType.WORD: 'word', IndexType.GROUP: 'group', IndexType.PHRASE: 'phrase'}
+        where_clause = f"WHERE type = '{mapping[index.type]}' AND line = {index.line} AND paragraph = {index.paragraph}"
+        articles = [f"'{a}'" for a in articles]
+        if articles:
+            where = f"where title IN ({','.join(articles)})"
+            sql = f"""
+            WITH article_ids AS (
+                SELECT id FROM articles
+                {where}
+            ) 
+            SELECT indices.term FROM indices
+            INNER JOIN article_ids ON article_ids.id = indices.article_id
+            {where_clause}
+        """
+        else:
+            sql = f"""
+                SELECT indices.term FROM indices
+                {where_clause} 
+            """
         with self._connection.cursor() as cursor:
             cursor.execute(sql)
             return [l[0] for l in cursor.fetchall()]

@@ -1,4 +1,5 @@
 import json
+from collections import defaultdict
 from datetime import date
 from typing import List, Optional
 
@@ -67,8 +68,14 @@ async def get_words(publishDate: Optional[date] = None, page: Optional[int] = 0,
 
 
 @app.get("/index")
-async def get_by_index(articles: List[str], paragraph: int, line: int, index_type: IndexType) -> IndexDTO:
-    return IndexDTO()
+async def get_by_index(paragraph: int, line: int, index_type: str, articles: str) -> List[str]:
+    articles = list(filter(lambda x: bool(x), articles.split(";")))
+    print(articles)
+    mapping = defaultdict(lambda: IndexType.WORD)
+    mapping['group'] = IndexType.GROUP
+    mapping['phrase'] = IndexType.PHRASE
+    dto = IndexDTO(**{'paragraph': paragraph, 'line': line, 'type': mapping[index_type]})
+    return await service.get_by_index(dto, articles)
 
 
 @app.post("/groups")

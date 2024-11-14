@@ -5,6 +5,7 @@ from typing import List, Optional
 from fastapi import UploadFile
 
 from news_db.dto.article import ArticleDTO
+from news_db.dto.index import IndexDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.fs.base import BaseFs
 from news_db.jdbc.oracle import OracleJdbc
@@ -75,3 +76,6 @@ class NewsService:
 
     async def get_words(self, article_dto: Optional[ArticleDTO] = None):
         return self._repository.get_words(article_dto)
+
+    async def get_by_index(self, index_dto: IndexDTO, articles: List[str]):
+        return self._repository.get_by_index(index_dto, articles)

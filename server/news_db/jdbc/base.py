@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from news_db.dto.article import ArticleDTO
+from news_db.dto.index import IndexDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.model.article import Article
 from news_db.model.index import Index
@@ -49,6 +50,10 @@ class BaseJdbc(ABC):
 
     @abstractmethod
     def get_words(self, article: Optional[ArticleDTO] = None) -> List[str]:
+        pass
+
+    @abstractmethod
+    def get_by_index(self, index: IndexDTO, articles: List[str]) -> List[str]:
         pass
 
 
