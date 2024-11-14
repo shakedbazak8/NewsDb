@@ -110,10 +110,9 @@ async def create_phrase(phrase: Phrase) -> bool:
 
 @app.get("/phrases")
 async def get_phrases() -> List[Phrase]:
-    # TODO
     return await service.get_phrases()
 
 
 @app.get("/stats")
 async def get_stats() -> List[StatsDTO]:
-    return []
+    return await service.get_stats()

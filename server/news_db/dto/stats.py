@@ -1,9 +1,13 @@
-from typing import Dict
+from typing import Dict, List, Any
 
 from pydantic import BaseModel
 
 
 class StatsDTO(BaseModel):
-    articleTitle: str
-    wordsCount: int
-    histogram: Dict[str, int]
+    title: str
+    words: int
+    groups: int
+    lines: int
+    paragraphs: int
+    groups_histogram: List[Dict[str, Any]]
+    words_histogram: List[Dict[str, Any]]

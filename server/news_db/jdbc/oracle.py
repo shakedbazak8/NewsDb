@@ -200,3 +200,56 @@ class OracleJdbc(BaseJdbc):
             cursor.execute(sql)
             return [l[0] for l in cursor.fetchall()]
 
+    def basic_stats(self) -> List[Dict[str, Any]]:
+        sql = """
+        SELECT
+            sum(CASE WHEN TYPE = 'word' THEN 1 ELSE 0 end) AS words,
+            count(DISTINCT CASE WHEN TYPE = 'group' THEN term ELSE NULL end) AS groups,
+            COUNT(DISTINCT line) AS lines,
+            COUNT(DISTINCT paragraph) AS pargraphes,
+            title
+            FROM indices
+            INNER JOIN articles ON articles.id = indices.article_id
+            GROUP BY TITLE 
+        """
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            columns = ['words', 'groups', 'lines', 'paragraphs', 'title']
+            return [dict(zip(columns, row)) for row in rows]
+
+
+    def words_histogram(self) -> List[Dict[str, Any]]:
+        sql = """
+        SELECT
+        count(*) AS cnt,
+        title,
+        term
+        FROM indices
+        INNER JOIN articles ON articles.id = indices.article_id
+        WHERE TYPE = 'word'
+        GROUP BY TITLE, term 
+        """
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            columns = ['cnt', 'title', 'term']
+            return [dict(zip(columns, row)) for row in rows]
+
+    def group_histogram(self) -> List[Dict[str, Any]]:
+        sql = """
+        SELECT
+        count(*) AS cnt,
+        title,
+        term
+        FROM indices
+        INNER JOIN articles ON articles.id = indices.article_id
+        WHERE TYPE = 'group'
+        GROUP BY TITLE, term 
+        """
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            rows = cursor.fetchall()
+            columns = ['cnt', 'title', 'term']
+            return [dict(zip(columns, row)) for row in rows]
+

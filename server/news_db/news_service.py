@@ -1,11 +1,13 @@
 import hashlib
 import uuid
+from itertools import groupby
 from typing import List, Optional
 
 from fastapi import UploadFile
 
 from news_db.dto.article import ArticleDTO
 from news_db.dto.index import IndexDTO
+from news_db.dto.stats import StatsDTO
 from news_db.dto.word_group import WordGroupDTO
 from news_db.fs.base import BaseFs
 from news_db.jdbc.oracle import OracleJdbc
@@ -79,3 +81,20 @@ class NewsService:
 
     async def get_by_index(self, index_dto: IndexDTO, articles: List[str]):
         return self._repository.get_by_index(index_dto, articles)
+
+    async def get_stats(self) -> List[StatsDTO]:
+        basic_stats = self._repository.basic_stats()
+        words_histogram = self._repository.words_histogram()
+        words_histogram = {key: list(group) for key, group in groupby(words_histogram, key=lambda x: x['title'])}
+        for article in words_histogram:
+            for row in words_histogram[article]:
+                del row['title']
+        groups_histogram = self._repository.group_histogram()
+        groups_histogram = {key: list(group) for key, group in groupby(groups_histogram, key=lambda x: x['title'])}
+        for article in groups_histogram:
+            for row in groups_histogram[article]:
+                del row['title']
+        for stat in basic_stats:
+            stat['words_histogram'] = words_histogram[stat['title']] if stat['title'] in words_histogram else []
+            stat['groups_histogram'] = groups_histogram[stat['title']] if stat['title'] in groups_histogram else []
+        return [StatsDTO(**raw) for raw in basic_stats]

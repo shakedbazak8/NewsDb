@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 
 from news_db.dto.article import ArticleDTO
 from news_db.dto.index import IndexDTO
@@ -55,5 +55,18 @@ class BaseJdbc(ABC):
     @abstractmethod
     def get_by_index(self, index: IndexDTO, articles: List[str]) -> List[str]:
         pass
+
+    @abstractmethod
+    def basic_stats(self) -> List[Dict[str, Any]]:
+        pass
+
+    @abstractmethod
+    def words_histogram(self) -> List[Dict[str, Any]]:
+        pass
+
+    @abstractmethod
+    def group_histogram(self) -> List[Dict[str, Any]]:
+        pass
+
 
 
