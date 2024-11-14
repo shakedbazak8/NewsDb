@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, Optional
 
 from news_db.dto.article import ArticleDTO
 from news_db.dto.word_group import WordGroupDTO
@@ -45,6 +45,10 @@ class BaseJdbc(ABC):
 
     @abstractmethod
     def store_indices(self, indices: List[Index]) -> bool:
+        pass
+
+    @abstractmethod
+    def get_words(self, article: Optional[ArticleDTO] = None) -> List[str]:
         pass
 
 

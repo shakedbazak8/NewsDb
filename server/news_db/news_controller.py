@@ -58,8 +58,12 @@ async def get_articles(publishDate: Optional[date] = None, page: Optional[int] =
 
 
 @app.get("/words")
-async def get_words(article: ArticleDTO, words: List[str]) -> List[str]:
-    return []
+async def get_words(publishDate: Optional[date] = None, page: Optional[int] = 0, author: Optional[str] = '',
+                       title: Optional[str] = '', subject: Optional[str] = '', paperName: Optional[str] = '') -> List[str]:
+    dto_raw = {'publishDate': publishDate, 'page': page, 'author': author, 'title': title, 'subject': subject,
+               'paperName': paperName}
+    dto = ArticleDTO(**dto_raw)
+    return await service.get_words(dto)
 
 
 @app.get("/index")

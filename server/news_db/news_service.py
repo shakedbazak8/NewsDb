@@ -1,6 +1,6 @@
 import hashlib
 import uuid
-from typing import List
+from typing import List, Optional
 
 from fastapi import UploadFile
 
@@ -72,3 +72,6 @@ class NewsService:
 
     async def get_phrases(self):
         return self._repository.get_phrases()
+
+    async def get_words(self, article_dto: Optional[ArticleDTO] = None):
+        return self._repository.get_words(article_dto)

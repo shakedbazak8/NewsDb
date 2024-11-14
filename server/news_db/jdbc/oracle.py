@@ -1,4 +1,4 @@
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 
 import oracledb
 
@@ -43,7 +43,17 @@ class OracleJdbc(BaseJdbc):
             return False
 
     def find_all(self, article: ArticleDTO) -> List[Article]:
-        raw = article.dict()
+        sql = f"""SELECT articles.* from articles {self._build_where_clause(article)}"""
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            rows = self._fetch_article_as_dict(cursor)
+            return [Article(**row) for row in rows]
+
+    def find_all_by_words(self, words: List[str]) -> List[Article]:
+        return []  # TODO:
+
+    def _build_where_clause(self, article: ArticleDTO) -> str:
+        raw = article.dict() if article else {}
         terms = []
         for key in raw:
             if raw[key]:
@@ -55,14 +65,7 @@ class OracleJdbc(BaseJdbc):
                 where_clause = f"WHERE " + ' AND '.join(terms)
         else:
             where_clause = ''
-        sql = f"""SELECT articles.* from articles {where_clause}"""
-        with self._connection.cursor() as cursor:
-            cursor.execute(sql)
-            rows = self._fetch_article_as_dict(cursor)
-            return [Article(**row) for row in rows]
-
-    def find_all_by_words(self, words: List[str]) -> List[Article]:
-        return []
+        return where_clause
 
     def _fetch_article_as_dict(self, cursor) -> List[Dict[str, Any]]:
         rows = cursor.fetchall()
@@ -132,13 +135,16 @@ class OracleJdbc(BaseJdbc):
             groups = []
             phrases = []
             for idx in word_indices:
-                words.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+                words.append(
+                    {'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
             group_indices = list(filter(lambda x: x.type == IndexType.GROUP, indices))
             for idx in group_indices:
-                groups.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+                groups.append(
+                    {'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
             phrase_indices = list(filter(lambda x: x.type == IndexType.PHRASE, indices))
             for idx in phrase_indices:
-                phrases.append({'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
+                phrases.append(
+                    {'article_id': idx.article_id, 'term': idx.index, 'line': idx.line, 'paragraph': idx.paragraph})
             word_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'word')"""
             group_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'group')"""
             phrase_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'phrase')"""
@@ -154,4 +160,18 @@ class OracleJdbc(BaseJdbc):
             print(e)
             return False
 
+    def get_words(self, article: Optional[ArticleDTO] = None) -> List[str]:
+        where_clause = self._build_where_clause(article)
+        sql = f"""
+        WITH article_ids AS (
+            SELECT id FROM articles
+            {where_clause}
+        ) 
+        SELECT DISTINCT indices.term FROM indices
+        INNER JOIN article_ids ON article_ids.id = indices.article_id
+        WHERE TYPE = 'word'
+        """
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            return [l[0] for l in cursor.fetchall()]
 
