@@ -1,8 +1,8 @@
 from typing import List
 
-from pydantic import BaseModel
+from pydantic_xml import BaseXmlModel, attr, element
 
 
-class WordGroup(BaseModel):
-    name: str
-    words: List[str]
+class WordGroup(BaseXmlModel):
+    name: str = attr()
+    words: List[str] = element()

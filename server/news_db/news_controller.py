@@ -27,16 +27,12 @@ async def index() -> str:
 
 @app.post("/export-db")
 async def export_db(xml_dto: XmlDTO) -> bool:
-    # TODO
-    print(xml_dto.dbName)
-    return True
+    return await service.export_db(xml_dto.filePath)
 
 
 @app.post("/import-db")
 async def import_db(xml_dto: XmlDTO) -> bool:
-    # TODO
-    print(xml_dto.dbName)
-    return True
+    return await service.import_db(xml_dto.filePath)
 
 @app.post("/articles")
 async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool:

@@ -68,5 +68,37 @@ class BaseJdbc(ABC):
     def group_histogram(self) -> List[Dict[str, Any]]:
         pass
 
+    @abstractmethod
+    def get_all_articles(self) -> List[Article]:
+        pass
+
+    @abstractmethod
+    def get_all_indices(self) -> List[Index]:
+        pass
+
+    @abstractmethod
+    def get_all_groups(self) -> List[WordGroup]:
+        pass
+
+    @abstractmethod
+    def get_all_phrases(self) -> List[Phrase]:
+        pass
+
+    @abstractmethod
+    def insert_all_articles(self, articles: List[Article]) -> bool:
+        pass
+
+    @abstractmethod
+    def insert_all_indices(self, indices: List[Index]) -> bool:
+        pass
+
+    @abstractmethod
+    def insert_all_groups(self, groups: List[WordGroup]) -> bool:
+        pass
+
+    @abstractmethod
+    def insert_all_phrases(self, phrases: List[Phrase]) -> bool:
+        pass
+
 
 

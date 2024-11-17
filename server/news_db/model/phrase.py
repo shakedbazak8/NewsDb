@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from pydantic_xml import BaseXmlModel, attr
 
 
-class Phrase(BaseModel):
-    phrase: str
-    definition: str
+class Phrase(BaseXmlModel):
+    phrase: str = attr()
+    definition: str = attr()

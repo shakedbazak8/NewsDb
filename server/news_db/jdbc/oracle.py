@@ -1,3 +1,4 @@
+from itertools import groupby
 from typing import List, Dict, Any, Optional
 
 import oracledb
@@ -218,7 +219,6 @@ class OracleJdbc(BaseJdbc):
             columns = ['words', 'groups', 'lines', 'paragraphs', 'title']
             return [dict(zip(columns, row)) for row in rows]
 
-
     def words_histogram(self) -> List[Dict[str, Any]]:
         sql = """
         SELECT
@@ -253,3 +253,94 @@ class OracleJdbc(BaseJdbc):
             columns = ['cnt', 'title', 'term']
             return [dict(zip(columns, row)) for row in rows]
 
+    def get_all_articles(self) -> List[Article]:
+        with self._connection.cursor() as cursor:
+            cursor.execute("select * from articles")
+            raw = self._fetch_article_as_dict(cursor)
+            return [Article(**row) for row in raw]
+
+    def get_all_indices(self) -> List[Index]:
+        with self._connection.cursor() as cursor:
+            cursor.execute("select * from indices")
+            columns = ['article_id', 'index', 'line', 'id', 'paragraph', 'type']
+            rows = cursor.fetchall()
+            raw = [dict(zip(columns, row)) for row in rows]
+            mapping = {'word': IndexType.WORD, 'group': IndexType.GROUP, 'phrase': IndexType.PHRASE}
+            for row in raw:
+                row['type'] = mapping[row['type']]
+            return [Index(**row) for row in raw]
+
+    def get_all_groups(self) -> List[WordGroup]:
+        with self._connection.cursor() as cursor:
+            cursor.execute("select * from groups")
+            columns = ['name', 'word']
+            rows = cursor.fetchall()
+            raw = [dict(zip(columns, row)) for row in rows]
+            grouped = {key: list(group) for key, group in groupby(raw, key=lambda x: x['name'])}
+            groups = {}
+            for group in grouped:
+                groups.update({'name': group, 'words': [r['word'] for r in grouped[group]]})
+            print(groups)
+            return [WordGroup(**groups) for group in groups]
+
+    def get_all_phrases(self) -> List[Phrase]:
+        with self._connection.cursor() as cursor:
+            cursor.execute("select * from phrases")
+            columns = ['phrase', 'definition']
+            rows = cursor.fetchall()
+            raw = [dict(zip(columns, row)) for row in rows]
+            return [Phrase(**row) for row in raw]
+
+    def insert_all_articles(self, articles: List[Article]) -> bool:
+        try:
+            with self._connection.cursor() as cursor:
+                articles = [article.dict() for article in articles]
+                sql = """INSERT INTO articles (id, publish_date, page, author, title, subject, paper_name, file_path, word_num) VALUES (:id, TO_DATE(:publishDate, 'YYYY-MM-DD'), :page, :author, :title, :subject, :paperName, :filePath, :wordNum)"""
+                cursor.executemany(sql, articles)
+                self._connection.commit()
+                return True
+        except Exception as e:
+            return False
+
+    def insert_all_indices(self, indices: List[Index]) -> bool:
+        indices = [index.dict() for index in indices]
+        mapping = {IndexType.WORD: 'word', IndexType.GROUP: 'group', IndexType.PHRASE: 'phrase'}
+        for index in indices:
+            index['index_type'] = mapping[index['type']]
+            del index['type']
+            index['term'] = index['index']
+            del index['index']
+
+        try:
+            with self._connection.cursor() as cursor:
+                sql = """INSERT INTO indices (article_id, term, line, paragraph, type, id) VALUES (:article_id, :term, :line, :paragraph, :index_type, :id)"""
+                cursor.executemany(sql, indices)
+                self._connection.commit()
+                return True
+        except Exception as e:
+            return False
+
+    def insert_all_groups(self, groups: List[WordGroup]) -> bool:
+        groups = [group.dict() for group in groups]
+        wg = []
+        for group in groups:
+            for word in group['words']:
+                wg.append({'group_name': group['name'], 'word': word})
+        try:
+            with self._connection.cursor() as cursor:
+                sql = """INSERT INTO groups (name, word) VALUES (:group_name, :word)"""
+                cursor.executemany(sql, wg)
+                self._connection.commit()
+                return True
+        except Exception as e:
+            return False
+
+    def insert_all_phrases(self, phrases: List[Phrase]) -> bool:
+        try:
+            with self._connection.cursor() as cursor:
+                sql = f"""INSERT INTO phrases (phrase, definition) VALUES (:phrase, :definition)"""
+                cursor.executemany(sql, [phrase.dict() for phrase in phrases])
+                self._connection.commit()
+                return True
+        except Exception as e:
+            return False

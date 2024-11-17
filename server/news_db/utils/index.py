@@ -7,12 +7,20 @@ from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
 
 
-def extract_words_with_paragraph_and_line(text: str) -> List[IndexDTO]:
+def get_paragraphs(text: str) -> List[str]:
+    return text.split("\n\n")
+
+
+def get_lines(text: str) -> List[str]:
+    return text.split("\n")
+
+
+def get_word_index(text: str) -> List[IndexDTO]:
     words_info = []
-    paragraphs = text.split("\n\n")
+    paragraphs = get_paragraphs(text)
 
     for para_num, paragraph in enumerate(paragraphs, start=1):
-        lines = paragraph.split("\n")
+        lines = get_lines(paragraph)
 
         for line_num, line in enumerate(lines, start=1):
             words = re.findall(r'\w+', line)

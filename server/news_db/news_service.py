@@ -12,23 +12,26 @@ from news_db.dto.word_group import WordGroupDTO
 from news_db.fs.base import BaseFs
 from news_db.jdbc.oracle import OracleJdbc
 from news_db.model.article import Article
+from news_db.model.db import Db
 from news_db.model.index import Index
 from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
-from news_db.utils.index import extract_words_with_paragraph_and_line, get_phrase_indexes, get_group_indexes
+from news_db.utils.index import get_word_index, get_phrase_indexes, get_group_indexes
+from news_db.xml import Xml
 
 
 class NewsService:
 
-    def __init__(self, fs: BaseFs, repository: OracleJdbc):
+    def __init__(self, fs: BaseFs, repository: OracleJdbc, xml: Xml):
         self._fs = fs
         self._repository = repository
+        self._xml = xml
 
     async def upload_file(self, file: UploadFile, article_dto: ArticleDTO) -> bool:
         try:
             data = (await file.read()).decode()
-            words = extract_words_with_paragraph_and_line(data)
+            words = get_word_index(data)
             article_id = str(uuid.uuid4())
             word_indices = [word.dict() for word in words]
             for word_index in word_indices:
@@ -51,7 +54,7 @@ class NewsService:
             raw_article = article_dto.dict()
             print(article_id)
             raw_article.update({'filePath': path, 'wordNum': len(words), 'id': article_id})
-            article = Article(**raw_article) # TODO: store indexes.
+            article = Article(**raw_article)
             uploaded = self._repository.insert(article)
             return self._repository.store_indices(word_indices + group_indices + phrase_indices) and uploaded
         except Exception as e:
@@ -98,3 +101,19 @@ class NewsService:
             stat['words_histogram'] = words_histogram[stat['title']] if stat['title'] in words_histogram else []
             stat['groups_histogram'] = groups_histogram[stat['title']] if stat['title'] in groups_histogram else []
         return [StatsDTO(**raw) for raw in basic_stats]
+
+    async def export_db(self, path: str) -> bool:
+        articles = self._repository.get_all_articles()
+        indices = self._repository.get_all_indices()
+        groups = self._repository.get_all_groups()
+        phrases = self._repository.get_all_phrases()
+        db = Db(**{'articles': articles, 'indices': indices, 'groups': groups, 'phrases': phrases})
+        return self._xml.export_db(db, path)
+
+    async def import_db(self, path: str) -> bool:
+        db = self._xml.import_db(path)
+        success_articles = self._repository.insert_all_articles(db.articles)
+        success_indices = self._repository.insert_all_indices(db.indices)
+        success_groups = self._repository.insert_all_groups(db.groups)
+        success_phrases = self._repository.insert_all_phrases(db.phrases)
+        return success_phrases and success_groups and success_articles and success_indices
