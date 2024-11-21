@@ -61,19 +61,27 @@ class NewsService:
             print(e)
             return False
 
-
     async def get_articles(self, article_dto: ArticleDTO, words: List[str]) -> List[Article]:
-        return self._repository.find_all(article_dto) + self._repository.find_all_by_words(words)
+        return list(set(self._repository.find_all(article_dto) + self._repository.find_all_by_words(words)))
 
     async def create_group(self, group: WordGroup) -> bool:
-        #TODO: Update index
+        articles = self._repository.find_all_by_words(group.words)
+        for article in articles:
+            data = self._fs.fetch(article.filePath)
+            group_indices = get_group_indexes(data, [group])
+            group_indices = [g.dict() for g in group_indices]
+            for group_index in group_indices:
+                group_index['article_id'] = article.id
+                group_index['type'] = IndexType.GROUP
+            group_indices = [Index(**raw) for raw in group_indices]
+            self._repository.store_indices(group_indices)
         return self._repository.insert_group(group)
 
     async def get_groups(self, dto: WordGroupDTO) -> List[WordGroup]:
         return self._repository.get_groups(dto)
 
     async def create_phrase(self, phrase: Phrase):
-        # TODO: Update index
+        # No need to index by phrase.
         return self._repository.insert_phrase(phrase)
 
     async def get_phrases(self):

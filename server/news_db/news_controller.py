@@ -52,7 +52,7 @@ async def get_articles(publishDate: Optional[date] = None, page: Optional[int] =
     word_list = words.split(',')
     dto_raw = {'publishDate': publishDate, 'page': page, 'author': author, 'title': title, 'subject': subject,
                'paperName': paperName}
-    dto = ArticleDTO(**dto_raw) # TODO: words.
+    dto = ArticleDTO(**dto_raw)
     return await service.get_articles(dto, word_list)
 
 
