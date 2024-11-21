@@ -17,7 +17,7 @@ from news_db.model.index import Index
 from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
-from news_db.utils.index import get_word_index, get_phrase_indexes, get_group_indexes
+from news_db.utils.index import get_word_index, get_phrase_indexes, get_group_indexes, get_preview
 from news_db.xml import Xml
 
 
@@ -125,3 +125,12 @@ class NewsService:
         success_groups = self._repository.insert_all_groups(db.groups)
         success_phrases = self._repository.insert_all_phrases(db.phrases)
         return success_phrases and success_groups and success_articles and success_indices
+
+    async def get_preview(self, article: str, line: int, paragraph: int) -> str:
+        articles = self._repository.find_all_by_name(article)
+        if articles:
+            article = articles[0]
+            return get_preview(self._fs.fetch(article.filePath), line, paragraph)
+        else:
+            return ""
+

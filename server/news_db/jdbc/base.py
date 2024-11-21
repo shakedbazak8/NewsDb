@@ -25,6 +25,10 @@ class BaseJdbc(ABC):
         pass
 
     @abstractmethod
+    def find_all_by_name(self, title: str) -> List[Article]:
+        pass
+
+    @abstractmethod
     def find_all_by_words(self, words: List[str]) -> List[Article]:
         pass
 

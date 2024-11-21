@@ -60,3 +60,12 @@ def get_phrase_indexes(text: str, phrases: List[Phrase]) -> List[IndexDTO]:
                         IndexDTO(index=phrase.phrase, line=line_num, paragraph=paragraph, type=IndexType.PHRASE)
                     )
     return phrases_info
+
+
+def get_preview(text, line: int, paragraph: int) -> str:
+    paragraphs = text.split("\n\n")
+    paragraph = paragraphs[paragraph - 1]  # Get entire paragraph
+    lines = paragraph.split("\n")
+    end_offset = line + 1 if line != 1 else line + 2
+    start_offset = line - 1 if line != 1 else line
+    return '\n'.join(lines[start_offset: end_offset])

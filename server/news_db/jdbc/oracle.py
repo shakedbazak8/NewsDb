@@ -51,6 +51,13 @@ class OracleJdbc(BaseJdbc):
             rows = self._fetch_article_as_dict(cursor)
             return [Article(**row) for row in rows]
 
+    def find_all_by_name(self, title: str) -> List[Article]:
+        sql = f"""SELECT articles.* from articles where title = '{title}'"""
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            rows = self._fetch_article_as_dict(cursor)
+            return [Article(**row) for row in rows]
+
     def find_all_by_words(self, words: List[str]) -> List[Article]:
         sql = f"""
         SELECT distinct articles.*

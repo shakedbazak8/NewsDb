@@ -112,3 +112,7 @@ async def get_phrases() -> List[Phrase]:
 @app.get("/stats")
 async def get_stats() -> List[StatsDTO]:
     return await service.get_stats()
+
+@app.get("/preview")
+async def get_preview(article: str, line: int, paragraph: int) -> str:
+    return await service.get_preview(article, line, paragraph)
