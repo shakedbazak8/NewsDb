@@ -1,0 +1,79 @@
+/* Word Group Component Styles */
+.word-group-container {
+    padding: 20px;
+    max-width: 600px;
+    margin: auto;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    font-weight: bold;
+    display: block;
+}
+
+input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button.submit-btn {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button.submit-btn:hover {
+    background-color: #0056b3;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.chip {
+    background-color: #007bff;
+    color: white;
+    padding: 5px 15px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    margin: 0 5px;
+}
+
+.remove-chip {
+    margin-left: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.remove-chip:hover {
+    color: red;
+}
+
+.word-group-list {
+    list-style-type: none;
+    padding: 0;
+}
+
+.word-group-item {
+    margin: 10px 0;
+}
+
+.word-group-item .chip {
+    background-color: #28a745;
+    margin-right: 5px;
+}

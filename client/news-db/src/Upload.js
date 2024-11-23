@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import './Upload.css'; // Importing the style file
+import './Upload.css';
+import axios from 'axios'; // Correct import for axios
 
 const Upload = () => {
     const [file, setFile] = useState(null);
+    const [uploading, setUploading] = useState(false);
     const [error, setError] = useState("");
     const [title, setTitle] = useState(""); // For the title field
-    const [page, setPage] = useState(""); // For the description field
-    const [author, setAuthor] = useState(""); // For the description field
-    const [publishDate, setPublishDate] = useState(""); // For the description field
-    const [subject, setSubject] = useState(""); // For the description field
-    const [paperName, setPaperName] = useState(""); // For the description field
+    const [page, setPage] = useState(""); // For the page field
+    const [author, setAuthor] = useState(""); // For the author field
+    const [publishDate, setPublishDate] = useState(""); // For the publish date field
+    const [subject, setSubject] = useState(""); // For the subject field
+    const [paperName, setPaperName] = useState(""); // For the paper name field
+    const [response, setResponse] = useState(null);
 
     // Handle file selection
     const handleFileChange = (event) => {
@@ -47,14 +50,63 @@ const Upload = () => {
         return null;
     };
 
-    // Handle form submission (optional)
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        if (!file) {
-            setError("Please upload a file before submitting.");
-            return;
+    // Validate if all required fields are filled
+    const validateForm = () => {
+        if (!title || !page || !author || !publishDate || !subject || !paperName || !file) {
+            setError("All fields must be filled, including uploading a file.");
+            return false;
         }
-        // You can replace this with your API request to upload the file and metadata
+        return true;
+    };
+
+    // Handle form submission (file upload)
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+
+        // Check if form is valid
+        if (!validateForm()) {
+            return; // Prevent submission if form is not valid
+        }
+
+        // Prepare form data with additional fields and the file
+        const formData = new FormData();
+        formData.append("file", file);
+        const attributes = {
+            "page": page,
+            "author": author,
+            "paperName": paperName,
+            "subject": subject,
+            "publishDate": publishDate,
+            "title": title
+        };
+        formData.append("article", JSON.stringify(attributes));
+
+        setUploading(true); // Start uploading
+
+        try {
+            // Send the POST request to your server endpoint
+            const response = await axios.post('http://localhost:8003/articles', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data', // Important for file uploads
+                },
+            });
+
+            // Handle the server response
+            setResponse(response.data);
+            setFile(null); // Clear the file input after upload
+            setTitle(""); // Clear the form fields after successful upload
+            setPage("");
+            setAuthor("");
+            setPublishDate("");
+            setSubject("");
+            setPaperName("");
+            setError(""); // Reset any previous error
+        } catch (err) {
+            setError('Error uploading file. Please try again.');
+            console.error('Upload Error:', err);
+        } finally {
+            setUploading(false); // Stop uploading
+        }
     };
 
     return (
@@ -77,7 +129,7 @@ const Upload = () => {
                 <div className="form-group">
                     <label htmlFor="page">Page</label>
                     <input
-                        type = "text"
+                        type="text"
                         id="page"
                         placeholder="Enter Page"
                         value={page}
@@ -89,7 +141,7 @@ const Upload = () => {
                 <div className="form-group">
                     <label htmlFor="author">Author</label>
                     <input
-                        type = "text"
+                        type="text"
                         id="author"
                         placeholder="Enter Author"
                         value={author}
@@ -101,7 +153,7 @@ const Upload = () => {
                 <div className="form-group">
                     <label htmlFor="publishDate">Publish Date</label>
                     <input
-                        type = "date"
+                        type="date"
                         id="publishDate"
                         placeholder="Enter Publish Date"
                         value={publishDate}
@@ -113,7 +165,7 @@ const Upload = () => {
                 <div className="form-group">
                     <label htmlFor="subject">Subject</label>
                     <input
-                        type = "text"
+                        type="text"
                         id="subject"
                         placeholder="Enter Subject"
                         value={subject}
@@ -125,7 +177,7 @@ const Upload = () => {
                 <div className="form-group">
                     <label htmlFor="paperName">Paper Name</label>
                     <input
-                        type = "text"
+                        type="text"
                         id="paperName"
                         placeholder="Enter Paper Name"
                         value={paperName}
@@ -150,8 +202,18 @@ const Upload = () => {
                 {renderFileAttributes()}
 
                 {/* Submit button */}
-                <button type="submit" className="submit-btn">Upload File</button>
+                <button type="submit" className="submit-btn" disabled={uploading}>
+                    {uploading ? 'Uploading...' : 'Upload File'}
+                </button>
             </form>
+
+            {/* Show the response from the server */}
+            {response && (
+                <div className="upload-success">
+                    <h3>File Uploaded Successfully!</h3>
+                    <p>{response.message || 'Your file has been uploaded successfully.'}</p>
+                </div>
+            )}
         </div>
     );
 };
