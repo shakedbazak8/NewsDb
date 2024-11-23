@@ -4,6 +4,8 @@ from datetime import date
 from typing import List, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form
+from fastapi.middleware.cors import CORSMiddleware
+
 
 from news_db.bootstrap import Bootstrap
 from news_db.dto.article import ArticleDTO
@@ -17,6 +19,13 @@ from news_db.model.phrase import Phrase
 from news_db.model.word_group import WordGroup
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins (use specific origins in production)
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],  # Allows all headers
+)
 service = Bootstrap().start()
 
 
