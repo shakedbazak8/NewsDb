@@ -1,21 +1,36 @@
+/* Ensure the body allows scrolling */
+body {
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+    background-color: #f4f6f7;
+    overflow-y: auto;  /* Enable scrolling on the entire page */
+    min-height: 100vh; /* Ensure the body takes full height */
+}
+
 /* Search container */
 .search-container {
     width: 100%;
-    max-width: 600px;
+    max-width: 800px;
     margin: 30px auto;
     padding: 20px;
     background-color: #fff;
     border-radius: 10px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    min-height: 60vh; /* Ensure it takes up a minimum amount of space */
 }
 
+/* Title for search */
 h2 {
     font-size: 2rem;
     margin-bottom: 20px;
     color: #333;
 }
 
+/* Form container */
 .form-group {
     margin-bottom: 15px;
     text-align: left;
@@ -28,6 +43,7 @@ label {
     display: block;
 }
 
+/* Input fields */
 input[type="text"],
 input[type="date"] {
     width: 100%;
@@ -38,6 +54,7 @@ input[type="date"] {
     box-sizing: border-box;
 }
 
+/* Search button */
 .search-btn {
     background-color: #3498db;
     color: #fff;
@@ -53,79 +70,96 @@ input[type="date"] {
     background-color: #2980b9;
 }
 
+/* Article results section */
 .article-list {
     margin-top: 30px;
+    max-height: 500px;  /* Limit the height of the article list */
+    overflow-y: auto;   /* Make the article list scrollable */
+    display: grid;
+    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));  /* Responsive grid */
 }
 
+/* Individual article card */
 .article-card {
-    background-color: #f4f4f4;
-    padding: 15px;
-    border-radius: 8px;
-    margin: 10px 0;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Hover effect for article card */
+.article-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+}
+
+/* Article title */
 .article-card h3 {
     margin-top: 0;
-    font-size: 1.5rem;
+    font-size: 1.7rem;
     color: #2c3e50;
+    font-weight: 600;
 }
 
+/* Meta information for article */
 .article-card p {
     font-size: 1rem;
     color: #7f8c8d;
+    margin: 5px 0;
 }
 
-.chips {
-    display: flex;
-    flex-wrap: wrap;
-    margin-top: 10px;
+/* Chips (keywords) section */
+.article-card .chips {
+    margin-top: 15px;
 }
 
+/* Styling individual chips */
 .chip {
-    background-color: #f1f1f1;
-    border-radius: 15px;
-    padding: 5px 10px;
+    background-color: #3498db;
+    color: #fff;
+    border-radius: 20px;
+    padding: 6px 15px;
     margin: 5px;
+    font-size: 14px;
     display: flex;
     align-items: center;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s;
 }
 
-/* Styling the chips container */
-.chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;  /* Space between chips */
-    margin-top: 10px;
-}
-
-/* Style for individual chips */
-.chip {
-    background-color: #007bff;  /* Chip background color */
-    color: #fff;  /* Text color */
-    border-radius: 16px;  /* Round edges */
-    padding: 5px 15px;  /* Padding around text */
-    display: flex;
-    align-items: center;
-    font-size: 14px;  /* Font size */
-    transition: background-color 0.2s ease;  /* Smooth color transition */
-}
-
-/* On hover, change the background color of the chip */
+/* Hover effect on chips */
 .chip:hover {
-    background-color: #0056b3;  /* Darker blue on hover */
+    background-color: #2980b9;
+    transform: scale(1.05);
 }
 
-/* Remove button (the "x" inside the chip) */
+/* Remove button in chips */
 .remove-chip {
-    margin-left: 8px;  /* Space between text and remove icon */
-    font-weight: bold;  /* Make the "x" bold */
-    cursor: pointer;  /* Change cursor to indicate it's clickable */
-    transition: color 0.2s ease;
+    margin-left: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.2s;
 }
 
-/* On hover, change the color of the "x" */
+/* Hover effect for remove button */
 .remove-chip:hover {
-    color: #ff4d4d;  /* Red color for hover effect */
+    color: #e74c3c;
+    transform: scale(1.2);
 }
 
+/* Empty state message (when no articles are found) */
+p.empty-state {
+    font-size: 1.1rem;
+    color: #95a5a6;
+    font-weight: 500;
+    text-align: center;
+    margin-top: 30px;
+}
+
+/* Add some padding at the bottom to avoid content getting cut off */
+.search-container {
+    padding-bottom: 40px;
+}
