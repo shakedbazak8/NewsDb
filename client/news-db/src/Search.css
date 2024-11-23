@@ -1,0 +1,131 @@
+/* Search container */
+.search-container {
+    width: 100%;
+    max-width: 600px;
+    margin: 30px auto;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.form-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+label {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 5px;
+    display: block;
+}
+
+input[type="text"],
+input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    font-size: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.search-btn {
+    background-color: #3498db;
+    color: #fff;
+    font-size: 1.2rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.search-btn:hover {
+    background-color: #2980b9;
+}
+
+.article-list {
+    margin-top: 30px;
+}
+
+.article-card {
+    background-color: #f4f4f4;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 10px 0;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+.article-card h3 {
+    margin-top: 0;
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.article-card p {
+    font-size: 1rem;
+    color: #7f8c8d;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    margin-top: 10px;
+}
+
+.chip {
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    padding: 5px 10px;
+    margin: 5px;
+    display: flex;
+    align-items: center;
+}
+
+/* Styling the chips container */
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;  /* Space between chips */
+    margin-top: 10px;
+}
+
+/* Style for individual chips */
+.chip {
+    background-color: #007bff;  /* Chip background color */
+    color: #fff;  /* Text color */
+    border-radius: 16px;  /* Round edges */
+    padding: 5px 15px;  /* Padding around text */
+    display: flex;
+    align-items: center;
+    font-size: 14px;  /* Font size */
+    transition: background-color 0.2s ease;  /* Smooth color transition */
+}
+
+/* On hover, change the background color of the chip */
+.chip:hover {
+    background-color: #0056b3;  /* Darker blue on hover */
+}
+
+/* Remove button (the "x" inside the chip) */
+.remove-chip {
+    margin-left: 8px;  /* Space between text and remove icon */
+    font-weight: bold;  /* Make the "x" bold */
+    cursor: pointer;  /* Change cursor to indicate it's clickable */
+    transition: color 0.2s ease;
+}
+
+/* On hover, change the color of the "x" */
+.remove-chip:hover {
+    color: #ff4d4d;  /* Red color for hover effect */
+}
+
