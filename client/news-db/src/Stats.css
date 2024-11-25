@@ -1,0 +1,72 @@
+.stats-container {
+    padding: 20px;
+    font-family: Arial, sans-serif;
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+    justify-items: center;
+}
+
+.stat-card {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    width: 100%;
+    max-width: 350px;
+}
+
+.stat-card h3 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.stat-card p {
+    font-size: 1rem;
+    color: #555;
+}
+
+.histogram {
+    margin-top: 15px;
+}
+
+.histogram h4 {
+    font-size: 1.1rem;
+    color: #444;
+}
+
+.histogram ul {
+    list-style: none;
+    padding-left: 0;
+}
+
+.histogram li {
+    font-size: 0.9rem;
+    color: #666;
+    padding-left: 10px;
+}
+
+.histogram li::before {
+    content: '•';
+    color: #007bff;
+    padding-right: 10px;
+}
+
+.histogram p {
+    font-size: 1rem;
+    color: #007bff;
+    margin-top: 5px;
+}
+
+.error {
+    color: red;
+    text-align: center;
+}

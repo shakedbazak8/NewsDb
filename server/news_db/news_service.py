@@ -1,5 +1,6 @@
 import hashlib
 import uuid
+from collections import defaultdict
 from itertools import groupby
 from typing import List, Optional
 
@@ -97,19 +98,23 @@ class NewsService:
 
     async def get_stats(self) -> List[StatsDTO]:
         basic_stats = self._repository.basic_stats()
+        partitioned_word_histogram = defaultdict(lambda: [])
         words_histogram = self._repository.words_histogram()
-        words_histogram = {key: list(group) for key, group in groupby(words_histogram, key=lambda x: x['title'])}
-        for article in words_histogram:
-            for row in words_histogram[article]:
-                del row['title']
+        stats_words = {}
+        for value in words_histogram:
+            partitioned_word_histogram[value['title']].append({"term": value['term'], "cnt": value['cnt']})
+        for key in partitioned_word_histogram:
+            stats_words[key] = sorted(partitioned_word_histogram[key], key=lambda d: d.get("cnt"), reverse=True)
+        partitioned_groups_histogram = defaultdict(lambda: [])
         groups_histogram = self._repository.group_histogram()
-        groups_histogram = {key: list(group) for key, group in groupby(groups_histogram, key=lambda x: x['title'])}
-        for article in groups_histogram:
-            for row in groups_histogram[article]:
-                del row['title']
+        stats_groups = {}
+        for value in groups_histogram:
+            partitioned_groups_histogram[value['title']].append({"term": value['term'], "cnt": value['cnt']})
+        for key in partitioned_groups_histogram:
+            stats_groups[key] = sorted(partitioned_groups_histogram[key], key=lambda d: d.get("cnt"), reverse=True)
         for stat in basic_stats:
-            stat['words_histogram'] = words_histogram[stat['title']] if stat['title'] in words_histogram else []
-            stat['groups_histogram'] = groups_histogram[stat['title']] if stat['title'] in groups_histogram else []
+            stat['words_histogram'] = stats_words[stat['title']] if stat['title'] in stats_words else []
+            stat['groups_histogram'] = stats_groups[stat['title']] if stat['title'] in stats_groups else []
         return [StatsDTO(**raw) for raw in basic_stats]
 
     async def export_db(self) -> bytes:

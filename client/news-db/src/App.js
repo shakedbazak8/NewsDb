@@ -7,19 +7,12 @@ import WordGroup from "./WordGroup";
 import Phrases from "./Phrases";
 import Words from "./Words";
 import Home from "./Home";
+import Stats from "./Stats";
 
 // Greeting Component
 const Greeting = () => (
   <div className="greeting">
     <h1>Welcome to the NewsDb</h1>
-  </div>
-);
-
-// Contact Component
-const Contact = () => (
-  <div className="page-content">
-    <h2>Contact Page</h2>
-    <p>Have any questions? Get in touch with our team!</p>
   </div>
 );
 
@@ -50,7 +43,7 @@ function App() {
               <Link to="/words">Words</Link>
             </li>
             <li>
-              <Link to="/contact">Contact</Link>
+              <Link to="/stats">Stats</Link>
             </li>
           </ul>
         </nav>
@@ -63,7 +56,7 @@ function App() {
           <Route path="/word-group" element={<WordGroup />} />
           <Route path="/phrase" element={<Phrases />} />
           <Route path="/words" element={<Words />} />
-          <Route path="/contact" element={<Contact />} />
+          <Route path="/stats" element={<Stats />} />
         </Routes>
       </div>
     </Router>
