@@ -24,6 +24,7 @@ def get_word_index(text: str) -> List[IndexDTO]:
 
         for line_num, line in enumerate(lines, start=1):
             words = re.findall(r'\w+', line)
+            # TODO: bug probably here.
             for word in words:
                 words_info.append(
                     IndexDTO(index=word, line=line_num, paragraph=para_num, type=IndexType.WORD)
@@ -42,7 +43,7 @@ def get_group_indexes(text: str, groups: List[WordGroup]) -> List[IndexDTO]:
                 for word in group.words:
                     if word in line:
                         groups_info.append(
-                            IndexDTO(index=group.name, line=line_num, paragraph=paragraph, type=IndexType.GROUP)
+                            IndexDTO(index=group.name, line=line_num, paragraph=para_num, type=IndexType.GROUP)
                         )
     return groups_info
 

@@ -96,7 +96,6 @@ async def update_word_group(word_group: WordGroup) -> bool:
     dto = WordGroupDTO(**{'name': word_group.name})
     groups = await service.get_groups(dto)
     group = groups[0] if groups else None
-    print(group)
     if group:
         update_group = WordGroup(**{'name': word_group.name, 'words': list(set(word_group.words) - set(group.words))})
         return await service.create_group(update_group)

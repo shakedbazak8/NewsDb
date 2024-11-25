@@ -53,14 +53,12 @@ class NewsService:
             phrase_indices = [Index(**raw) for raw in phrase_indices]
             path = self._fs.store(data)
             raw_article = article_dto.dict()
-            print(article_id)
             raw_article.update({'filePath': path, 'wordNum': len(words), 'id': article_id})
             article = Article(**raw_article)
             uploaded = self._repository.insert(article)
             return self._repository.store_indices(word_indices + group_indices + phrase_indices) and uploaded
         except Exception as e:
-            print(e)
-            return False
+            raise e
 
     async def get_articles(self, article_dto: ArticleDTO, words: List[str]) -> List[Article]:
         metadata_articles = self._repository.find_all(article_dto)

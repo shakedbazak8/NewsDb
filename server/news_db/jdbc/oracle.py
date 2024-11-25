@@ -37,7 +37,6 @@ class OracleJdbc(BaseJdbc):
         sql = f"""INSERT INTO articles (id, publish_date, page, author, title, subject, paper_name, file_path, word_num) VALUES ('{article.id}', TO_DATE('{article.publishDate.strftime('%Y-%m-%d')}', 'YYYY-mm-DD'), {article.page}, '{article.author}', '{article.title}', '{article.subject}', '{article.paperName}', '{article.filePath}', {article.wordNum})"""
         try:
             with self._connection.cursor() as cursor:
-                print(sql)
                 cursor.execute(sql)
             self._connection.commit()
             return True
@@ -46,7 +45,6 @@ class OracleJdbc(BaseJdbc):
 
     def find_all(self, article: ArticleDTO) -> List[Article]:
         sql = f"""SELECT articles.* from articles {self._build_where_clause(article)}"""
-        print(sql)
         with self._connection.cursor() as cursor:
             cursor.execute(sql)
             rows = self._fetch_article_as_dict(cursor)
@@ -69,7 +67,6 @@ class OracleJdbc(BaseJdbc):
     WHERE TYPE = 'word' AND term IN ({', '.join(f"'{word}'" for word in words)})
 """
             with self._connection.cursor() as cursor:
-                print(sql)
                 cursor.execute(sql)
                 rows = self._fetch_article_as_dict(cursor)
                 return [Article(**row) for row in rows]
@@ -100,20 +97,17 @@ class OracleJdbc(BaseJdbc):
         try:
             sql = f"""INSERT INTO groups (name, word) VALUES (:name, :word)"""
             data = [{'name': group.name, 'word': word} for word in group.words]
-            print(data)
             with self._connection.cursor() as cursor:
                 cursor.executemany(sql, data)
                 self._connection.commit()
             return True
         except Exception as e:
-            print(e)
-            return False
+            raise e
 
     def get_groups(self, group: WordGroupDTO) -> List[WordGroup]:
         try:
             where_clause = f"WHERE name = '{group.name}'" if group.name else ""
             sql = f"""SELECT name, listagg(word, ';') as words FROM groups {where_clause} group by name"""
-            print(sql)
             with self._connection.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
@@ -122,33 +116,28 @@ class OracleJdbc(BaseJdbc):
                     row['words'] = row['words'].split(';')
                 return [WordGroup(**row) for row in rows]
         except Exception as e:
-            print(e)
             return []
 
     def insert_phrase(self, phrase: Phrase) -> bool:
         try:
             sql = f"""INSERT INTO phrases (phrase, definition) VALUES (:phrase, :definition)"""
             data = [{'phrase': phrase.phrase, 'definition': phrase.definition if phrase.definition else ''}]
-            print(sql)
             with self._connection.cursor() as cursor:
                 cursor.executemany(sql, data)
                 self._connection.commit()
             return True
         except Exception as e:
-            print(e)
             return False
 
     def get_phrases(self) -> List[Phrase]:
         try:
             sql = f"""SELECT * FROM phrases"""
-            print(sql)
             with self._connection.cursor() as cursor:
                 cursor.execute(sql)
                 rows = cursor.fetchall()
                 rows = [dict(zip(['phrase', 'definition'], row)) for row in rows]
                 return [Phrase(**row) for row in rows]
         except Exception as e:
-            print(e)
             return []
 
     def store_indices(self, indices: List[Index]) -> bool:
@@ -172,7 +161,8 @@ class OracleJdbc(BaseJdbc):
             group_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'group')"""
             phrase_sql = """INSERT INTO indices (article_id, term, line, paragraph, type) VALUES (:article_id, :term, :line, :paragraph, 'phrase')"""
             with self._connection.cursor() as cursor:
-                cursor.executemany(word_sql, words)
+                if words:
+                    cursor.executemany(word_sql, words)
                 if groups:
                     cursor.executemany(group_sql, groups)
                 if phrases:
@@ -180,7 +170,7 @@ class OracleJdbc(BaseJdbc):
             self._connection.commit()
             return True
         except Exception as e:
-            print(e)
+            raise e
             return False
 
     def get_words(self, article: Optional[ArticleDTO] = None) -> List[str]:
@@ -302,7 +292,6 @@ class OracleJdbc(BaseJdbc):
             groups = {}
             for group in grouped:
                 groups.update({'name': group, 'words': [r['word'] for r in grouped[group]]})
-            print(groups)
             return [WordGroup(**groups) for group in groups]
 
     def get_all_phrases(self) -> List[Phrase]:
