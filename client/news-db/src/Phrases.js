@@ -1,10 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import './Phrases.css'; // Ensure you have a CSS file for styling
 
 const Phrases = () => {
     const [phrase, setPhrase] = useState(""); // State for the phrase
     const [definition, setDefinition] = useState(""); // State for the definition
     const [phrasesList, setPhrasesList] = useState([]); // List to store the phrases
+    const [isLoading, setIsLoading] = useState(false); // Loading state
+    const [error, setError] = useState(""); // Error state for handling fetch errors
+
+    // Fetch phrases from API when the component mounts or after adding a new phrase
+    const fetchPhrases = async () => {
+        setIsLoading(true);
+        try {
+            const response = await axios.get('http://localhost:8003/phrases'); // Update with your API endpoint
+            setPhrasesList(response.data); // Assuming the response is an array of phrases
+        } catch (err) {
+            setError("Failed to load phrases.");
+            console.error(err);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    // Load phrases when the component mounts
+    useEffect(() => {
+        fetchPhrases();
+    }, []); // Empty dependency array means this effect runs only once when the component mounts
 
     // Handle input changes for the phrase
     const handlePhraseChange = (e) => {
@@ -17,29 +39,37 @@ const Phrases = () => {
     };
 
     // Handle adding the phrase and its definition
-    const handleAddPhrase = () => {
+    const handleAddPhrase = async () => {
         if (phrase && definition) {
-            const newPhrase = { phrase, definition };
-            setPhrasesList([...phrasesList, newPhrase]); // Add the new phrase to the list
-            setPhrase(""); // Reset phrase input
-            setDefinition(""); // Reset definition input
+            try {
+                // Optionally, you can send a POST request to save the phrase to the backend
+                await axios.post('http://localhost:8003/phrases', { phrase, definition }); // Update with your API endpoint
+
+                // Fetch the updated phrases list after successfully adding a new phrase
+                fetchPhrases();
+
+                // Reset inputs
+                setPhrase("");
+                setDefinition("");
+            } catch (err) {
+                setError("Failed to add phrase.");
+                console.error(err);
+            }
         } else {
             alert("Please provide both a phrase and its definition.");
         }
-    };
-
-    // Handle form submission to create a phrase group
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // This can be expanded to save the phrases to a backend or local storage if needed
     };
 
     return (
         <div className="phrases-container">
             <h2>Phrases</h2>
 
+            {/* Loading indicator */}
+            {isLoading && <p>Loading phrases...</p>}
+            {error && <p className="error">{error}</p>}
+
             {/* Form to create a phrase */}
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={(e) => e.preventDefault()}>
                 <div className="form-group">
                     <label htmlFor="phrase">Phrase</label>
                     <input
@@ -79,7 +109,7 @@ const Phrases = () => {
                     ))}
                 </ul>
             ) : (
-                <p>No phrases created yet.</p>
+                <p>No phrases available.</p>
             )}
         </div>
     );
