@@ -1,14 +1,15 @@
 /* Ensure the body allows scrolling */
 body {
+    overflow: auto;
     margin: 0;
     font-family: 'Arial', sans-serif;
     background-color: #f4f6f7;
-    overflow-y: auto;  /* Enable scrolling on the entire page */
     min-height: 100vh; /* Ensure the body takes full height */
 }
 
 /* Search container */
 .search-container {
+    overflow: auto;
     width: 100%;
     max-width: 800px;
     margin: 30px auto;

@@ -6,19 +6,12 @@ import Search from "./Search";
 import WordGroup from "./WordGroup";
 import Phrases from "./Phrases";
 import Words from "./Words";
+import Home from "./Home";
 
 // Greeting Component
 const Greeting = () => (
   <div className="greeting">
     <h1>Welcome to the NewsDb</h1>
-  </div>
-);
-
-// Home Component
-const Home = () => (
-  <div className="page-content">
-    <h2>Home Page</h2>
-    <p>Welcome to the homepage of NewsDb! Here you'll find the latest updates on world events, tech, sports, and more.</p>
   </div>
 );
 

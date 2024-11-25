@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './Upload.css';
-import axios from 'axios'; // Correct import for axios
+import axios from "axios";
 
 const Upload = () => {
     const [file, setFile] = useState(null);

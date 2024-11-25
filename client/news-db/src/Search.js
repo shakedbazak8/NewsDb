@@ -205,9 +205,6 @@ const Search = () => {
                         ))}
                     </div>
                 </div>
-
-                {/* Submit button */}
-                <button type="submit" className="submit-btn">Search</button>
             </form>
 
             {/* Display filtered results */}

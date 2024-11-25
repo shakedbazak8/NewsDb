@@ -1,3 +1,4 @@
+import io
 import json
 from collections import defaultdict
 from datetime import date
@@ -5,14 +6,13 @@ from typing import List, Optional
 
 from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-
+from starlette.responses import StreamingResponse
 
 from news_db.bootstrap import Bootstrap
 from news_db.dto.article import ArticleDTO
 from news_db.dto.index import IndexDTO
 from news_db.dto.stats import StatsDTO
 from news_db.dto.word_group import WordGroupDTO
-from news_db.dto.xml import XmlDTO
 from news_db.model.article import Article
 from news_db.model.index_type import IndexType
 from news_db.model.phrase import Phrase
@@ -34,14 +34,16 @@ async def index() -> str:
     return "Hello"
 
 
-@app.post("/export-db")
-async def export_db(xml_dto: XmlDTO) -> bool:
-    return await service.export_db(xml_dto.filePath)
+@app.get("/export-db")
+async def export_db() -> StreamingResponse:
+    xml = await service.export_db()
+    return StreamingResponse(io.BytesIO(xml))
 
 
 @app.post("/import-db")
-async def import_db(xml_dto: XmlDTO) -> bool:
-    return await service.import_db(xml_dto.filePath)
+async def import_db(file: UploadFile = File(...)) -> bool:
+    data = await file.read()
+    return await service.import_db(data)
 
 @app.post("/articles")
 async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool:

@@ -112,16 +112,16 @@ class NewsService:
             stat['groups_histogram'] = groups_histogram[stat['title']] if stat['title'] in groups_histogram else []
         return [StatsDTO(**raw) for raw in basic_stats]
 
-    async def export_db(self, path: str) -> bool:
+    async def export_db(self) -> bytes:
         articles = self._repository.get_all_articles()
         indices = self._repository.get_all_indices()
         groups = self._repository.get_all_groups()
         phrases = self._repository.get_all_phrases()
         db = Db(**{'articles': articles, 'indices': indices, 'groups': groups, 'phrases': phrases})
-        return self._xml.export_db(db, path)
+        return self._xml.export_db(db)
 
-    async def import_db(self, path: str) -> bool:
-        db = self._xml.import_db(path)
+    async def import_db(self, data: bytes) -> bool:
+        db = self._xml.import_db(data)
         success_articles = self._repository.insert_all_articles(db.articles)
         success_indices = self._repository.insert_all_indices(db.indices)
         success_groups = self._repository.insert_all_groups(db.groups)

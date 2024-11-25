@@ -3,18 +3,14 @@ from news_db.model.db import Db
 
 class Xml:
 
-    def export_db(self, db: Db, path: str) -> bool:
+    def export_db(self, db: Db) -> bytes:
         try:
-            with open(path, 'wb') as io:
-                io.write(db.to_xml())
-                return True
+            return db.to_xml()
         except:
-            return False
+            raise ValueError("Unsupported Format")
 
-    def import_db(self, path: str) -> Db:
+    def import_db(self, data: bytes) -> Db:
         try:
-            with open(path, 'rb') as io:
-                db = Db.from_xml(io.read())
-                return db
+            return Db.from_xml(data)
         except:
             raise ValueError("Invalid XML data")
