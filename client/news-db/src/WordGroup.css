@@ -1,79 +1,115 @@
-/* Word Group Component Styles */
 .word-group-container {
     padding: 20px;
-    max-width: 600px;
-    margin: auto;
+    max-width: 800px;
+    margin: 0 auto;
 }
 
-.form-group {
+h2, h3 {
+    text-align: center;
+}
+
+form {
     margin-bottom: 20px;
 }
 
-label {
-    font-weight: bold;
-    display: block;
+.form-group {
+    margin-bottom: 15px;
 }
 
 input {
     width: 100%;
-    padding: 10px;
-    margin-top: 5px;
+    padding: 8px;
+    margin: 5px 0;
     border: 1px solid #ccc;
-    border-radius: 5px;
+    border-radius: 4px;
 }
 
-button.submit-btn {
-    background-color: #007bff;
+button {
+    width: 100%;
+    padding: 10px;
+    background-color: #4CAF50;
     color: white;
-    padding: 10px 15px;
     border: none;
-    border-radius: 5px;
+    border-radius: 4px;
+    font-size: 16px;
     cursor: pointer;
 }
 
-button.submit-btn:hover {
-    background-color: #0056b3;
+button:hover {
+    background-color: #45a049;
 }
 
 .chips {
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-top: 10px;
 }
 
 .chip {
-    background-color: #007bff;
-    color: white;
-    padding: 5px 15px;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
+    background-color: #ddd;
+    padding: 5px 10px;
+    border-radius: 20px;
+    display: inline-block;
     font-size: 14px;
-    margin: 0 5px;
 }
 
 .remove-chip {
-    margin-left: 8px;
-    font-weight: bold;
+    margin-left: 5px;
     cursor: pointer;
-    transition: color 0.2s ease;
+    color: #ff0000;
 }
 
-.remove-chip:hover {
-    color: red;
-}
-
-.word-group-list {
-    list-style-type: none;
+.available-words ul {
+    list-style: none;
     padding: 0;
 }
 
-.word-group-item {
-    margin: 10px 0;
+.available-words li {
+    padding: 5px;
+    cursor: pointer;
 }
 
-.word-group-item .chip {
-    background-color: #28a745;
-    margin-right: 5px;
+.available-words li:hover {
+    background-color: #f0f0f0;
+}
+
+.word-group-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.word-group-card {
+    width: 250px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    text-align: center;
+    background-color: #fff;
+    transition: transform 0.3s ease;
+}
+
+.word-group-card:hover {
+    transform: scale(1.05);
+}
+
+.card-header {
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.card-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    justify-content: center;
+}
+
+.card-body .chip {
+    background-color: #e0e0e0;
+    color: #555;
 }

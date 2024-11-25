@@ -60,15 +60,15 @@ class OracleJdbc(BaseJdbc):
             return [Article(**row) for row in rows]
 
     def find_all_by_words(self, words: List[str]) -> List[Article]:
-        words = [word for word in words if bool(word)]
         if words:
             sql = f"""
-            SELECT distinct articles.*
-            FROM indices
-            INNER JOIN articles ON articles.id = indices.article_id
-            WHERE TYPE = 'word' AND term IN ({','.join(words)})
-            """
+    SELECT distinct articles.*
+    FROM indices
+    INNER JOIN articles ON articles.id = indices.article_id
+    WHERE TYPE = 'word' AND term IN ({', '.join(f"'{word}'" for word in words if bool(word))})
+"""
             with self._connection.cursor() as cursor:
+                print(sql)
                 cursor.execute(sql)
                 rows = self._fetch_article_as_dict(cursor)
                 return [Article(**row) for row in rows]
