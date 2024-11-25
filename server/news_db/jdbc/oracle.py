@@ -227,7 +227,7 @@ class OracleJdbc(BaseJdbc):
         SELECT
             sum(CASE WHEN TYPE = 'word' THEN 1 ELSE 0 end) AS words,
             count(DISTINCT CASE WHEN TYPE = 'group' THEN term ELSE NULL end) AS groups,
-            COUNT(DISTINCT line) AS lines,
+            COUNT(DISTINCT paragraph || '-' || line) AS lines,
             COUNT(DISTINCT paragraph) AS pargraphes,
             title
             FROM indices
