@@ -36,20 +36,6 @@ const Upload = () => {
         }
     };
 
-    // Render file information if file is selected
-    const renderFileAttributes = () => {
-        if (file) {
-            return (
-                <div className="file-attributes">
-                    <p><strong>File Name:</strong> {file.name}</p>
-                    <p><strong>File Size:</strong> {(file.size / 1024 / 1024).toFixed(2)} MB</p>
-                    <p><strong>File Type:</strong> {file.type}</p>
-                </div>
-            );
-        }
-        return null;
-    };
-
     // Validate if all required fields are filled
     const validateForm = () => {
         if (!title || !page || !author || !publishDate || !subject || !paperName || !file) {
@@ -191,15 +177,13 @@ const Upload = () => {
                     <input
                         type="file"
                         id="file"
+                        accept=".txt"  // Restrict file selection to TXT files
                         onChange={handleFileChange}
                     />
                 </div>
 
                 {/* Error message */}
                 {error && <p className="error-message">{error}</p>}
-
-                {/* Display file attributes */}
-                {renderFileAttributes()}
 
                 {/* Submit button */}
                 <button type="submit" className="submit-btn" disabled={uploading}>
