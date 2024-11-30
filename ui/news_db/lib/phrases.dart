@@ -10,7 +10,7 @@ class Phrases extends StatefulWidget {
 class _PhrasesState extends State<Phrases> {
   String phrase = ""; // State for the phrase
   String definition = ""; // State for the definition
-  List<Map<String, String>> phrasesList = []; // List to store the phrases
+  List<Map<String, dynamic>> phrasesList = []; // List to store the phrases
   bool isLoading = false; // Loading state
   String error = ""; // Error state for handling fetch errors
 
@@ -26,7 +26,7 @@ class _PhrasesState extends State<Phrases> {
       if (response.statusCode == 200) {
         List<dynamic> data = json.decode(response.body);
         setState(() {
-          phrasesList = List<Map<String, String>>.from(data.map((item) {
+          phrasesList = List<Map<String, dynamic>>.from(data.map((item) {
             return {'phrase': item['phrase'], 'definition': item['definition']};
           }));
         });
