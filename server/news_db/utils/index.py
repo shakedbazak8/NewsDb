@@ -58,7 +58,7 @@ def get_phrase_indexes(text: str, phrases: List[Phrase]) -> List[IndexDTO]:
             for phrase in phrases:
                 if phrase.phrase in line:
                     phrases_info.append(
-                        IndexDTO(index=phrase.phrase, line=line_num, paragraph=paragraph, type=IndexType.PHRASE)
+                        IndexDTO(index=phrase.phrase, line=line_num, paragraph=para_num, type=IndexType.PHRASE)
                     )
     return phrases_info
 

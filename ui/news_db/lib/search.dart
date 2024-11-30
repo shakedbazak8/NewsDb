@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart'; // Import the intl package
+
 
 class SearchScreen extends StatefulWidget {
   @override
@@ -14,10 +16,10 @@ class _SearchScreenState extends State<SearchScreen> {
   String? title;
   String? page;
   String? author;
-  String? publishDate;
+  DateTime? publishDate;  // Changed to DateTime
   String? subject;
   String? paperName;
-  List<String> keywords = [];
+  List<String> words = [];
 
   bool isLoading = false;
   List articles = [];
@@ -36,16 +38,22 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
+      // Format the publishDate as 'YYYY-MM-DD' (yyyy-MM-dd)
+      String? formattedPublishDate = publishDate != null
+          ? DateFormat('yyyy-MM-dd').format(publishDate!)  // Format as string 'YYYY-MM-DD'
+          : null;
+
       final params = {
         "title": title,
         "page": page,
         "author": author,
-        "publishDate": publishDate,
+        "publishDate": formattedPublishDate,  // Use formatted date
         "subject": subject,
         "paperName": paperName,
-        "keywords": keywords.join(','),
+        "words": words.join(','),
       };
 
+      // Remove keys where values are null or empty
       params.removeWhere((key, value) => value == null || value.isEmpty);
 
       final uri = Uri.http('localhost:8003', '/articles', params);
@@ -72,17 +80,31 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void addKeyword(String keyword) {
-    if (keyword.isNotEmpty && !keywords.contains(keyword)) {
+    if (keyword.isNotEmpty && !words.contains(keyword)) {
       setState(() {
-        keywords.add(keyword);
+        words.add(keyword);
       });
     }
   }
 
   void removeKeyword(String keyword) {
     setState(() {
-      keywords.remove(keyword);
+      words.remove(keyword);
     });
+  }
+
+  // Function to show Date Picker
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: publishDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2101),
+    );
+    if (picked != null && picked != publishDate)
+      setState(() {
+        publishDate = picked; // Set DateTime object
+      });
   }
 
   @override
@@ -103,10 +125,10 @@ class _SearchScreenState extends State<SearchScreen> {
                     buildTextField("Title", (value) => title = value),
                     buildTextField("Page", (value) => page = value),
                     buildTextField("Author", (value) => author = value),
-                    buildTextField("Publish Date", (value) => publishDate = value),
+                    buildDatePicker(),
                     buildTextField("Subject", (value) => subject = value),
                     buildTextField("Paper Name", (value) => paperName = value),
-                    buildKeywordsInput(),
+                    buildwordsInput(),
                   ],
                 ),
               ),
@@ -152,15 +174,43 @@ class _SearchScreenState extends State<SearchScreen> {
     );
   }
 
-  Widget buildKeywordsInput() {
+  Widget buildDatePicker() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: GestureDetector(
+        onTap: () => _selectDate(context), // When tapped, open the date picker
+        child: AbsorbPointer(
+          child: TextFormField(
+            decoration: InputDecoration(
+              labelText: "Publish Date",
+              hintText: publishDate == null
+                  ? "Select Date"
+                  : "${publishDate!.toLocal()}".split(' ')[0], // Format DateTime as YYYY-MM-DD
+              border: OutlineInputBorder(),
+            ),
+            // The TextFormField should also reflect changes in the publishDate
+            controller: TextEditingController(
+              text: publishDate == null
+                  ? ""
+                  : "${publishDate!.toLocal()}".split(' ')[0], // Display the date in the field
+            ),
+            readOnly: true, // Prevent manual editing, only date picker should modify it
+          ),
+        ),
+      ),
+    );
+  }
+
+
+  Widget buildwordsInput() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text("Keywords"),
+        Text("Words"),
         SizedBox(height: 10),
         TextField(
           decoration: InputDecoration(
-            labelText: "Add a keyword",
+            labelText: "Add a word",
             border: OutlineInputBorder(),
           ),
           onSubmitted: (value) {
@@ -171,7 +221,7 @@ class _SearchScreenState extends State<SearchScreen> {
         Wrap(
           spacing: 8.0,
           runSpacing: 4.0,
-          children: keywords
+          children: words
               .map((keyword) => Chip(
             label: Text(keyword),
             onDeleted: () => removeKeyword(keyword),

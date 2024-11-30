@@ -61,9 +61,13 @@ class NewsService:
             raise e
 
     async def get_articles(self, article_dto: ArticleDTO, words: List[str]) -> List[Article]:
+        words = [word for word in words if bool(word)]
         metadata_articles = self._repository.find_all(article_dto)
         words_articles = self._repository.find_all_by_words(words)
-        return metadata_articles + [article for article in words_articles if article not in metadata_articles]
+        if article_dto.is_empty() and bool(words):
+            return words_articles
+        else:
+            return metadata_articles + [article for article in words_articles if article not in metadata_articles]
 
     async def create_group(self, group: WordGroup) -> bool:
         articles = self._repository.find_all_by_words(group.words)

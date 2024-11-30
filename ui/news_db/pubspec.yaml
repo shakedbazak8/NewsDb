@@ -37,6 +37,7 @@ dependencies:
   permission_handler: ^10.2.0
   dio: ^5.0.0
   flutter_tags: ^1.0.0-nullsafety.1
+  intl: ^0.17.0
 
 
 
