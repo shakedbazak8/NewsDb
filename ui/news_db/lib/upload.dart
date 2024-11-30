@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'; // For kIsWeb
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:typed_data';
 
 class UploadFile extends StatefulWidget {
   @override
@@ -11,28 +13,68 @@ class UploadFile extends StatefulWidget {
 
 class _UploadFileState extends State<UploadFile> {
   final _formKey = GlobalKey<FormState>();
-  String? title, page, author, publishDate, subject, paperName;
+  String? title, page, author, subject, paperName;
+  DateTime? publishDate; // Changed to DateTime
   File? selectedFile;
   bool isUploading = false;
   String? errorMessage;
   String? successMessage;
 
-  Future<void> selectFile() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['txt']);
+  // For Web, we store the file as bytes
+  Uint8List? selectedFileBytes;
+  String? selectedFileName;
 
-    if (result != null && result.files.single.path != null) {
-      final file = File(result.files.single.path!);
-      if (file.lengthSync() > 5 * 1024 * 1024) {
-        // File size validation
-        setState(() {
-          errorMessage = "File size should not exceed 5MB.";
-        });
+  Future<void> selectFile() async {
+    try {
+      final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['txt']);
+
+      if (result != null) {
+        if (kIsWeb) {
+          // Handle file selection for web (using bytes)
+          final fileBytes = result.files.single.bytes;
+          final fileName = result.files.single.name;
+
+          if (fileBytes != null) {
+            setState(() {
+              selectedFileBytes = fileBytes;
+              selectedFileName = fileName;
+              successMessage = "File selected: $fileName";
+            });
+          } else {
+            setState(() {
+              errorMessage = "Failed to read file bytes.";
+            });
+          }
+        } else {
+          // Handle file selection for mobile (using file path)
+          final filePath = result.files.single.path;
+          if (filePath != null) {
+            final file = File(filePath);
+            if (file.lengthSync() > 5 * 1024 * 1024) {
+              setState(() {
+                errorMessage = "File size should not exceed 5MB.";
+              });
+            } else {
+              setState(() {
+                selectedFile = file;
+                successMessage = "File selected: ${file.path.split('/').last}";
+              });
+            }
+          } else {
+            setState(() {
+              errorMessage = "Failed to get file path.";
+            });
+          }
+        }
       } else {
         setState(() {
-          selectedFile = file;
-          errorMessage = null; // Clear any previous error
+          errorMessage = "No file selected.";
         });
       }
+    } catch (e) {
+      setState(() {
+        errorMessage = "An error occurred while selecting the file: $e";
+      });
     }
   }
 
@@ -44,7 +86,14 @@ class _UploadFileState extends State<UploadFile> {
       return;
     }
 
-    if (selectedFile == null) {
+    if (kIsWeb && selectedFileBytes == null) {
+      setState(() {
+        errorMessage = "Please select a file to upload.";
+      });
+      return;
+    }
+
+    if (!kIsWeb && selectedFile == null) {
       setState(() {
         errorMessage = "Please select a file to upload.";
       });
@@ -60,23 +109,36 @@ class _UploadFileState extends State<UploadFile> {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('http://localhost:8003/articles'));
 
+      // Send the fields data
       request.fields['article'] = jsonEncode({
         "page": page,
         "author": author,
         "paperName": paperName,
         "subject": subject,
-        "publishDate": publishDate,
+        "publishDate": publishDate?.toIso8601String(), // Convert DateTime to ISO string
         "title": title,
       });
 
-      request.files.add(await http.MultipartFile.fromPath('file', selectedFile!.path));
+      // For web, send file as bytes
+      if (kIsWeb && selectedFileBytes != null) {
+        request.files.add(http.MultipartFile.fromBytes(
+          'file',
+          selectedFileBytes!,
+          filename: selectedFileName,
+        ));
+      } else if (!kIsWeb && selectedFile != null) {
+        // For mobile, send file from path
+        request.files.add(await http.MultipartFile.fromPath('file', selectedFile!.path));
+      }
 
       final response = await request.send();
 
       if (response.statusCode == 200) {
         setState(() {
           successMessage = "File uploaded successfully!";
-          selectedFile = null;
+          selectedFile = null; // Clear file selection
+          selectedFileBytes = null;
+          selectedFileName = null;
         });
       } else {
         setState(() {
@@ -90,6 +152,21 @@ class _UploadFileState extends State<UploadFile> {
     } finally {
       setState(() {
         isUploading = false;
+      });
+    }
+  }
+
+  void pickPublishDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: publishDate ?? DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime.now(),
+    );
+
+    if (pickedDate != null) {
+      setState(() {
+        publishDate = pickedDate;
       });
     }
   }
@@ -123,11 +200,6 @@ class _UploadFileState extends State<UploadFile> {
                 validator: (value) => value!.isEmpty ? "Author is required" : null,
               ),
               TextFormField(
-                decoration: InputDecoration(labelText: "Publish Date"),
-                onChanged: (value) => publishDate = value,
-                validator: (value) => value!.isEmpty ? "Publish Date is required" : null,
-              ),
-              TextFormField(
                 decoration: InputDecoration(labelText: "Subject"),
                 onChanged: (value) => subject = value,
                 validator: (value) => value!.isEmpty ? "Subject is required" : null,
@@ -136,6 +208,21 @@ class _UploadFileState extends State<UploadFile> {
                 decoration: InputDecoration(labelText: "Paper Name"),
                 onChanged: (value) => paperName = value,
                 validator: (value) => value!.isEmpty ? "Paper Name is required" : null,
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    publishDate != null
+                        ? "Publish Date: ${publishDate!.toLocal().toString().split(' ')[0]}"
+                        : "Publish Date: Not selected",
+                  ),
+                  TextButton(
+                    onPressed: pickPublishDate,
+                    child: Text("Pick Date"),
+                  ),
+                ],
               ),
               SizedBox(height: 20),
               TextButton(
@@ -149,6 +236,11 @@ class _UploadFileState extends State<UploadFile> {
               if (selectedFile != null)
                 Text(
                   "Selected File: ${selectedFile!.path.split('/').last}",
+                  style: TextStyle(color: Colors.green),
+                ),
+              if (selectedFileBytes != null)
+                Text(
+                  "Selected File: $selectedFileName",
                   style: TextStyle(color: Colors.green),
                 ),
               if (errorMessage != null)
