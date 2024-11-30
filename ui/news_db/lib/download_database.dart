@@ -1,37 +1,33 @@
-import 'dart:io';
+import 'dart:html' as html; // For web-based download functionality
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class DownloadDatabase extends StatelessWidget {
   Future<void> handleDownload() async {
     try {
-      // Request storage permissions
-      if (await Permission.storage.request().isGranted) {
-        // Initialize Dio for HTTP requests
-        Dio dio = Dio();
+      // Initialize Dio for HTTP requests
+      Dio dio = Dio();
 
-        // File URL and local save path
-        String url = "http://localhost:8003/export-db";
-        Directory appDocDir = await getApplicationDocumentsDirectory();
-        String savePath = "${appDocDir.path}/backup.xml";
+      // File URL
+      String url = "http://localhost:8003/export-db";
 
-        // Download file
-        Response response = await dio.download(
-          url,
-          savePath,
-          options: Options(responseType: ResponseType.bytes),
-        );
+      // Fetch the file from the server
+      final response = await dio.get(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
 
-        if (response.statusCode == 200) {
-          print("File downloaded to: $savePath");
-          // Optionally, show a success message to the user
-        } else {
-          print("Failed to download file.");
-        }
+      if (response.statusCode == 200) {
+        // Create a Blob and trigger the download
+        final blob = html.Blob([response.data], 'application/octet-stream');
+        final downloadUrl = html.Url.createObjectUrlFromBlob(blob);
+        final anchor = html.AnchorElement(href: downloadUrl)
+          ..target = 'blank'
+          ..download = "backup.xml" // File name for the downloaded file
+          ..click();
+        html.Url.revokeObjectUrl(downloadUrl); // Clean up the URL
       } else {
-        print("Storage permission denied.");
+        print("Failed to download file: ${response.statusMessage}");
       }
     } catch (error) {
       print("Error downloading file: $error");
