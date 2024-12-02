@@ -1,3 +1,4 @@
+import datetime
 from itertools import groupby
 from typing import List, Dict, Any, Optional
 
@@ -45,6 +46,7 @@ class OracleJdbc(BaseJdbc):
 
     def find_all(self, article: ArticleDTO) -> List[Article]:
         sql = f"""SELECT articles.* from articles {self._build_where_clause(article)}"""
+        print(sql)
         with self._connection.cursor() as cursor:
             cursor.execute(sql)
             rows = self._fetch_article_as_dict(cursor)
@@ -74,10 +76,20 @@ class OracleJdbc(BaseJdbc):
 
     def _build_where_clause(self, article: ArticleDTO) -> str:
         raw = article.dict() if article else {}
+        if 'publishDate' in raw:
+            raw['publish_date'] = raw['publishDate']
+                # f"TO_DATE({raw['publishDate']}, 'YYYY-MM-DD')"
+            del raw['publishDate']
         terms = []
         for key in raw:
             if raw[key]:
-                terms.append(f"{key} = {raw[key]}" if isinstance(raw[key], int) else f"{key} = '{raw[key]}'")
+                if isinstance(raw[key], int):
+                    term = f"{key} = {raw[key]}"
+                elif key == "publish_date":
+                    term = f"{key} = TO_DATE('{raw[key]}', 'YYYY-MM-DD')"
+                else:
+                    term = f"{key} = '{raw[key]}'"
+                terms.append(term)
         if terms:
             if len(terms) == 1:
                 where_clause = f"WHERE {terms[0]}"
