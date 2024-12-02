@@ -87,7 +87,7 @@ async def get_by_index(paragraph: Optional[int] = None, line: Optional[int] = No
     return await service.get_by_index(dto, articles)
 
 
-@app.get("/index/word")
+@app.get("/index/words")
 async def get_word_by_index(paragraph: Optional[int] = None, line: Optional[int] = None,
                             articles: Optional[str] = "") -> List[str]:
     articles = list(filter(lambda x: bool(x), articles.split(";")))

@@ -7,6 +7,7 @@ import 'phrases.dart';
 import 'words.dart';
 import 'stats.dart';
 import 'index.dart';
+import 'words_index.dart';
 
 void main() {
   runApp(MyApp());
@@ -43,6 +44,7 @@ class _AppState extends State<App> {
     Words(),
     Stats(),
     Index(),
+    WordsIndex()
   ];
 
   void _onItemTapped(int index) {
@@ -146,6 +148,15 @@ class _AppState extends State<App> {
               onTap: () {
                 setState(() {
                   _selectedIndex = 7;
+                });
+                Navigator.pop(context);
+              },
+            ),
+            ListTile(
+              title: Text('Words Index'),
+              onTap: () {
+                setState(() {
+                  _selectedIndex = 8;
                 });
                 Navigator.pop(context);
               },
