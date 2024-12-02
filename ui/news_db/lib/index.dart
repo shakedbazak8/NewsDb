@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart'; // Import the intl package
-
 
 class Index extends StatefulWidget {
   @override
@@ -20,6 +18,10 @@ class _IndexState extends State<Index> {
   bool isLoading = false;
   List indices = [];
   String? errorMessage;
+
+  // Dropdown selection for index type
+  String selectedType = 'word';
+  final List<String> indexTypes = ['word', 'phrase', 'group'];
 
   @override
   void initState() {
@@ -38,7 +40,7 @@ class _IndexState extends State<Index> {
         "articles": titles.join(";"),
         "paragraph": paragraph,
         "line": line,
-        "index_type": "word",
+        "index_type": selectedType, // Include selected type
       };
 
       // Remove keys where values are null or empty
@@ -111,9 +113,6 @@ class _IndexState extends State<Index> {
     );
   }
 
-
-
-
   Widget buildIndexList() {
     return ListView.builder(
       itemCount: indices.length,
@@ -139,6 +138,34 @@ class _IndexState extends State<Index> {
     );
   }
 
+  Widget buildDropdown() {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: Row(
+        children: [
+          Text(
+            "Index Type: ",
+            style: TextStyle(fontSize: 16),
+          ),
+          SizedBox(width: 10),
+          DropdownButton<String>(
+            value: selectedType,
+            onChanged: (value) {
+              setState(() {
+                selectedType = value!;
+              });
+            },
+            items: indexTypes.map((type) {
+              return DropdownMenuItem(
+                value: type,
+                child: Text(type),
+              );
+            }).toList(),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,6 +184,7 @@ class _IndexState extends State<Index> {
                   children: [
                     buildTextField("Paragraph", (value) => paragraph = value),
                     buildTextField("Line", (value) => line = value),
+                    buildDropdown(), // Add the dropdown
                     buildTitlesInput(),
                   ],
                 ),

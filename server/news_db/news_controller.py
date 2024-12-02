@@ -45,6 +45,7 @@ async def import_db(file: UploadFile = File(...)) -> bool:
     data = await file.read()
     return await service.import_db(data)
 
+
 @app.post("/articles")
 async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool:
     try:
@@ -53,7 +54,6 @@ async def upload(file: UploadFile = File(...), article: str = Form(...)) -> bool
         return await service.upload_file(file, article_dto)
     except Exception as e:
         raise e
-
 
 
 @app.get("/articles")
@@ -69,7 +69,7 @@ async def get_articles(publishDate: Optional[date] = None, page: Optional[int] =
 
 @app.get("/words")
 async def get_words(publishDate: Optional[date] = None, page: Optional[int] = 0, author: Optional[str] = '',
-                       title: Optional[str] = '', subject: Optional[str] = '', paperName: Optional[str] = '') -> List[str]:
+                    title: Optional[str] = '', subject: Optional[str] = '', paperName: Optional[str] = '') -> List[str]:
     dto_raw = {'publishDate': publishDate, 'page': page, 'author': author, 'title': title, 'subject': subject,
                'paperName': paperName}
     dto = ArticleDTO(**dto_raw)
@@ -77,13 +77,23 @@ async def get_words(publishDate: Optional[date] = None, page: Optional[int] = 0,
 
 
 @app.get("/index")
-async def get_by_index(paragraph: Optional[int] = None, line: Optional[int] = None, index_type: Optional[str] = 'word', articles: Optional[str] = "") -> List[IndexDTO]:
+async def get_by_index(paragraph: Optional[int] = None, line: Optional[int] = None, index_type: Optional[str] = 'word',
+                       articles: Optional[str] = "") -> List[IndexDTO]:
     articles = list(filter(lambda x: bool(x), articles.split(";")))
     mapping = defaultdict(lambda: IndexType.WORD)
     mapping['group'] = IndexType.GROUP
     mapping['phrase'] = IndexType.PHRASE
     dto = IndexDTO(**{'paragraph': paragraph, 'line': line, 'type': mapping[index_type]})
     return await service.get_by_index(dto, articles)
+
+
+@app.get("/index/word")
+async def get_word_by_index(paragraph: Optional[int] = None, line: Optional[int] = None,
+                            articles: Optional[str] = "") -> List[str]:
+    articles = list(filter(lambda x: bool(x), articles.split(";")))
+    dto = IndexDTO(**{'paragraph': paragraph, 'line': line, 'type': IndexType.WORD})
+    indices = await service.get_by_index(dto, articles)
+    return [idx.index for idx in indices]
 
 
 @app.post("/groups")
@@ -122,6 +132,7 @@ async def get_phrases() -> List[Phrase]:
 @app.get("/stats")
 async def get_stats() -> List[StatsDTO]:
     return await service.get_stats()
+
 
 @app.get("/preview")
 async def get_preview(article: str, line: int, paragraph: int) -> str:
