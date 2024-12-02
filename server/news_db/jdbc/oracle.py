@@ -78,7 +78,6 @@ class OracleJdbc(BaseJdbc):
         raw = article.dict() if article else {}
         if 'publishDate' in raw:
             raw['publish_date'] = raw['publishDate']
-                # f"TO_DATE({raw['publishDate']}, 'YYYY-MM-DD')"
             del raw['publishDate']
         terms = []
         for key in raw:
