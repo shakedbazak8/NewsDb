@@ -29,3 +29,5 @@ CREATE TABLE groups (
     name VARCHAR2(255) NOT NULL,
     word VARCHAR2(255) NOT NULL
 );
+
+ALTER TABLE groups add CONSTRAINT groups_unique UNIQUE (name, word);
