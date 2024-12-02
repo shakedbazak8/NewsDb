@@ -77,7 +77,7 @@ async def get_words(publishDate: Optional[date] = None, page: Optional[int] = 0,
 
 
 @app.get("/index")
-async def get_by_index(paragraph: int, line: int, index_type: str, articles: str) -> List[str]:
+async def get_by_index(paragraph: Optional[int] = None, line: Optional[int] = None, index_type: Optional[str] = 'word', articles: Optional[str] = "") -> List[IndexDTO]:
     articles = list(filter(lambda x: bool(x), articles.split(";")))
     mapping = defaultdict(lambda: IndexType.WORD)
     mapping['group'] = IndexType.GROUP

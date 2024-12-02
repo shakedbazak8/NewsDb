@@ -92,11 +92,12 @@ class NewsService:
     async def get_phrases(self):
         return self._repository.get_phrases()
 
-    async def get_words(self, article_dto: Optional[ArticleDTO] = None):
+    async def get_words(self, article_dto: Optional[ArticleDTO] = None) -> List[str]:
         return self._repository.get_words(article_dto)
 
-    async def get_by_index(self, index_dto: IndexDTO, articles: List[str]):
-        return self._repository.get_by_index(index_dto, articles)
+    async def get_by_index(self, index_dto: IndexDTO, articles: List[str]) -> List[IndexDTO]:
+        indices = self._repository.get_by_index(index_dto, articles)
+        return [IndexDTO(index=index.index, line=index.line, paragraph=index.paragraph, type=index.type) for index in indices]
 
     async def get_stats(self) -> List[StatsDTO]:
         basic_stats = self._repository.basic_stats()

@@ -98,6 +98,25 @@ class OracleJdbc(BaseJdbc):
             where_clause = ''
         return where_clause
 
+    def _build__index_where_clause(self, index: IndexDTO) -> str:
+        raw = index.dict() if index else {}
+        terms = []
+        for key in raw:
+            if raw[key]:
+                if isinstance(raw[key], int):
+                    term = f"{key} = {raw[key]}"
+                else:
+                    term = f"{key} = '{raw[key]}'"
+                terms.append(term)
+        if terms:
+            if len(terms) == 1:
+                where_clause = f"WHERE {terms[0]}"
+            else:
+                where_clause = f"WHERE " + ' AND '.join(terms)
+        else:
+            where_clause = ''
+        return where_clause
+
     def _fetch_article_as_dict(self, cursor) -> List[Dict[str, Any]]:
         rows = cursor.fetchall()
         columns = ['id', 'publishDate', 'page', 'author', 'title', 'subject', 'paperName', 'filePath', 'wordNum']
@@ -199,10 +218,9 @@ class OracleJdbc(BaseJdbc):
             cursor.execute(sql)
             return [l[0] for l in cursor.fetchall()]
 
-
-    def get_by_index(self, index: IndexDTO, articles: List[str]) -> List[str]:
+    def get_by_index(self, index: IndexDTO, articles: List[str]) -> List[Index]:
         mapping = {IndexType.WORD: 'word', IndexType.GROUP: 'group', IndexType.PHRASE: 'phrase'}
-        where_clause = f"WHERE type = '{mapping[index.type]}' AND line = {index.line} AND paragraph = {index.paragraph}"
+        where_clause = self._build__index_where_clause(index)
         articles = [f"'{a}'" for a in articles]
         if articles:
             where = f"where title IN ({','.join(articles)})"
@@ -211,18 +229,21 @@ class OracleJdbc(BaseJdbc):
                 SELECT id FROM articles
                 {where}
             ) 
-            SELECT indices.term FROM indices
+            SELECT indices.* FROM indices
             INNER JOIN article_ids ON article_ids.id = indices.article_id
             {where_clause}
         """
         else:
             sql = f"""
-                SELECT indices.term FROM indices
+                SELECT distinct indices.* FROM indices
                 {where_clause} 
             """
         with self._connection.cursor() as cursor:
+            print(sql)
             cursor.execute(sql)
-            return [l[0] for l in cursor.fetchall()]
+            rows = cursor.fetchall()
+            rows = [dict(zip(['article_id', 'index', 'line', 'id', 'paragraph', 'type'], row)) for row in rows]
+            return [Index(**row) for row in rows]
 
     def basic_stats(self) -> List[Dict[str, Any]]:
         sql = """
