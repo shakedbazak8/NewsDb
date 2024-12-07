@@ -231,7 +231,7 @@ class _WordsState extends State<Words> {
 
   Future<void> fetchWordDetails(int index) async {
     try {
-      final word = words[index];
+      final word = words[index]; // Get the word for the index
       final params = {
         "word": word,
       };
@@ -239,30 +239,48 @@ class _WordsState extends State<Words> {
       final response = await http.get(uri);
 
       if (response.statusCode == 200) {
-        setState(() {
-          previewData = json.decode(response.body);
-          previewIndex = index;
-          previewWord = word;
-        });
+        final data = json.decode(response.body);
+
+        if (data is List && data.isNotEmpty) {
+          setState(() {
+            previewData = data;
+            previewIndex = 0; // Start at the first index
+            previewWord = word;
+          });
+        } else {
+          setState(() {
+            previewData = [];
+            previewIndex = null;
+            errorMessage = "No preview data available for this word.";
+          });
+        }
       } else {
         setState(() {
           errorMessage = "Error: Unable to fetch word details.";
+          previewData = null;
         });
       }
     } catch (e) {
       setState(() {
         errorMessage = "An error occurred: $e";
+        previewData = null;
       });
     }
   }
 
+
   Widget buildPreviewComponent(BuildContext context) {
     return StatefulBuilder(
       builder: (context, setModalState) {
-        final textToDisplay = previewData != null && previewIndex != null
+        // Validate data and index
+        final textToDisplay = (previewData != null &&
+            previewIndex != null &&
+            previewIndex! >= 0 &&
+            previewIndex! < previewData!.length)
             ? previewData![previewIndex!]
-            : ""; // Get the current preview text
-        final wordToHighlight = previewWord; // Replace with the word you want to highlight
+            : ""; // Default to empty string if invalid index or data
+
+        final wordToHighlight = previewWord;
 
         return Container(
           padding: EdgeInsets.all(16.0),
@@ -281,17 +299,26 @@ class _WordsState extends State<Words> {
                   IconButton(
                     icon: Icon(Icons.close),
                     onPressed: () {
+                      setState(() {
+                        previewData = null;
+                        previewIndex = null;
+                        previewWord = "";
+                      });
                       Navigator.pop(context); // Close the dialog
                     },
                   ),
                 ],
               ),
               SizedBox(height: 10),
-              if (previewData != null && previewIndex != null) ...[
+              if (previewData != null &&
+                  previewIndex != null &&
+                  previewIndex! >= 0 &&
+                  previewIndex! < previewData!.length) ...[
+                // Show text with highlighted word
                 Text.rich(
                   _highlightWord(textToDisplay, wordToHighlight),
                   style: TextStyle(fontSize: 16),
-                ), // Display the current item with highlighted word
+                ),
                 SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -319,14 +346,22 @@ class _WordsState extends State<Words> {
                   ],
                 ),
               ],
-              if (previewData == null)
-                Center(child: CircularProgressIndicator()),
+              if (previewData == null || previewIndex == null)
+                Center(child: CircularProgressIndicator()), // Show loader if no data
+              if (errorMessage != null)
+                Text(
+                  errorMessage!,
+                  style: TextStyle(color: Colors.red),
+                ),
             ],
           ),
         );
       },
     );
   }
+
+
+
 
   TextSpan _highlightWord(String text, String word) {
     final wordRegex = RegExp(RegExp.escape(word), caseSensitive: false);
