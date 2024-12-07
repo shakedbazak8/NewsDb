@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
 
 
 class SearchScreen extends StatefulWidget {
@@ -16,7 +16,7 @@ class _SearchScreenState extends State<SearchScreen> {
   String? title;
   String? page;
   String? author;
-  DateTime? publishDate;  // Changed to DateTime
+  DateTime? publishDate;
   String? subject;
   String? paperName;
   List<String> words = [];
@@ -38,22 +38,20 @@ class _SearchScreenState extends State<SearchScreen> {
     });
 
     try {
-      // Format the publishDate as 'YYYY-MM-DD' (yyyy-MM-dd)
       String? formattedPublishDate = publishDate != null
-          ? DateFormat('yyyy-MM-dd').format(publishDate!)  // Format as string 'YYYY-MM-DD'
+          ? DateFormat('yyyy-MM-dd').format(publishDate!)
           : null;
 
       final params = {
         "title": title,
         "page": page,
         "author": author,
-        "publishDate": formattedPublishDate,  // Use formatted date
+        "publishDate": formattedPublishDate,
         "subject": subject,
         "paperName": paperName,
         "words": words.join(','),
       };
 
-      // Remove keys where values are null or empty
       params.removeWhere((key, value) => value == null || value.isEmpty);
 
       final uri = Uri.http('localhost:8003', '/articles', params);
@@ -93,7 +91,6 @@ class _SearchScreenState extends State<SearchScreen> {
     });
   }
 
-  // Function to show Date Picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -103,7 +100,7 @@ class _SearchScreenState extends State<SearchScreen> {
     );
     if (picked != null && picked != publishDate)
       setState(() {
-        publishDate = picked; // Set DateTime object
+        publishDate = picked;
       });
   }
 
@@ -178,23 +175,22 @@ class _SearchScreenState extends State<SearchScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: GestureDetector(
-        onTap: () => _selectDate(context), // When tapped, open the date picker
+        onTap: () => _selectDate(context),
         child: AbsorbPointer(
           child: TextFormField(
             decoration: InputDecoration(
               labelText: "Publish Date",
               hintText: publishDate == null
                   ? "Select Date"
-                  : "${publishDate!.toLocal()}".split(' ')[0], // Format DateTime as YYYY-MM-DD
+                  : "${publishDate!.toLocal()}".split(' ')[0],
               border: OutlineInputBorder(),
             ),
-            // The TextFormField should also reflect changes in the publishDate
             controller: TextEditingController(
               text: publishDate == null
                   ? ""
-                  : "${publishDate!.toLocal()}".split(' ')[0], // Display the date in the field
+                  : "${publishDate!.toLocal()}".split(' ')[0],
             ),
-            readOnly: true, // Prevent manual editing, only date picker should modify it
+            readOnly: true,
           ),
         ),
       ),

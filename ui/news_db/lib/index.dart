@@ -19,7 +19,6 @@ class _IndexState extends State<Index> {
   List indices = [];
   String? errorMessage;
 
-  // Dropdown selection for index type
   String selectedType = 'word';
   final List<String> indexTypes = ['word', 'phrase', 'group'];
 
@@ -40,10 +39,9 @@ class _IndexState extends State<Index> {
         "articles": titles.join(";"),
         "paragraph": paragraph,
         "line": line,
-        "index_type": selectedType, // Include selected type
+        "index_type": selectedType,
       };
 
-      // Remove keys where values are null or empty
       params.removeWhere((key, value) => value == null || value.isEmpty);
 
       final uri = Uri.http('localhost:8003', '/index', params);
@@ -184,7 +182,7 @@ class _IndexState extends State<Index> {
                   children: [
                     buildTextField("Paragraph", (value) => paragraph = value),
                     buildTextField("Line", (value) => line = value),
-                    buildDropdown(), // Add the dropdown
+                    buildDropdown(),
                     buildTitlesInput(),
                   ],
                 ),

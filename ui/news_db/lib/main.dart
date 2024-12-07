@@ -34,7 +34,6 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   int _selectedIndex = 0;
 
-  // List of pages to display for different routes
   static final List<Widget> _pages = [
     Home(),
     UploadFile(),
@@ -56,17 +55,14 @@ class _AppState extends State<App> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // App Bar
       appBar: AppBar(
         title: Text('Welcome to the NewsDb'),
         backgroundColor: Colors.blueGrey,
       ),
-      // Drawer for navigation links
       drawer: Drawer(
         child: ListView(
           padding: EdgeInsets.zero,
           children: <Widget>[
-            // Header or Greeting section
             DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.blueGrey,
@@ -79,14 +75,13 @@ class _AppState extends State<App> {
                 ),
               ),
             ),
-            // Navigation Links
             ListTile(
               title: Text('Home'),
               onTap: () {
                 setState(() {
                   _selectedIndex = 0;
                 });
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
               },
             ),
             ListTile(
@@ -164,7 +159,6 @@ class _AppState extends State<App> {
           ],
         ),
       ),
-      // Body content
       body: _pages[_selectedIndex],
     );
   }

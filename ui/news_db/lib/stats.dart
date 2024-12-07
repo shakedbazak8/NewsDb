@@ -8,11 +8,10 @@ class Stats extends StatefulWidget {
 }
 
 class _StatsState extends State<Stats> {
-  List<dynamic> statsData = []; // Data for stats
-  bool isLoading = true; // Loading state
-  String error = ''; // Error state
+  List<dynamic> statsData = [];
+  bool isLoading = true;
+  String error = '';
 
-  // Fetch stats data from an API or use sample data
   Future<void> fetchStats() async {
     try {
       final response = await http.get(Uri.parse('http://localhost:8003/stats'));
@@ -43,13 +42,12 @@ class _StatsState extends State<Stats> {
     fetchStats();
   }
 
-  // Function to get the top 10 and remaining items for histograms
   Map<String, dynamic> getTop10AndRemaining(List<dynamic> histogramData) {
     if (histogramData == null || histogramData.isEmpty) {
       return {'top10': [], 'remainingCount': 0};
     }
 
-    histogramData.sort((a, b) => b['cnt'].compareTo(a['cnt'])); // Sort by count
+    histogramData.sort((a, b) => b['cnt'].compareTo(a['cnt']));
     final top10 = histogramData.take(10).toList();
     final remainingCount = histogramData.length - top10.length;
 
@@ -88,13 +86,11 @@ class _StatsState extends State<Stats> {
                     Text('Lines: ${stat['lines']}'),
                     Text('Paragraphs: ${stat['paragraphs']}'),
                     SizedBox(height: 15),
-                    // Groups Histogram
                     Text('Groups Histogram:', style: TextStyle(fontWeight: FontWeight.bold)),
                     ...groupsHistogram['top10'].map((item) => Text('${item['term']}: ${item['cnt']}')).toList(),
                     if (groupsHistogram['remainingCount'] > 0)
                       Text('And ${groupsHistogram['remainingCount']} more...'),
                     SizedBox(height: 10),
-                    // Words Histogram
                     Text('Words Histogram:', style: TextStyle(fontWeight: FontWeight.bold)),
                     ...wordsHistogram['top10'].map((item) => Text('${item['term']}: ${item['cnt']}')).toList(),
                     if (wordsHistogram['remainingCount'] > 0)

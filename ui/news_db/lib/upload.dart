@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -14,13 +14,12 @@ class UploadFile extends StatefulWidget {
 class _UploadFileState extends State<UploadFile> {
   final _formKey = GlobalKey<FormState>();
   String? title, page, author, subject, paperName;
-  DateTime? publishDate; // Changed to DateTime
+  DateTime? publishDate;
   File? selectedFile;
   bool isUploading = false;
   String? errorMessage;
   String? successMessage;
 
-  // For Web, we store the file as bytes
   Uint8List? selectedFileBytes;
   String? selectedFileName;
 
@@ -30,7 +29,6 @@ class _UploadFileState extends State<UploadFile> {
 
       if (result != null) {
         if (kIsWeb) {
-          // Handle file selection for web (using bytes)
           final fileBytes = result.files.single.bytes;
           final fileName = result.files.single.name;
 
@@ -46,7 +44,6 @@ class _UploadFileState extends State<UploadFile> {
             });
           }
         } else {
-          // Handle file selection for mobile (using file path)
           final filePath = result.files.single.path;
           if (filePath != null) {
             final file = File(filePath);
@@ -109,17 +106,15 @@ class _UploadFileState extends State<UploadFile> {
     try {
       final request = http.MultipartRequest('POST', Uri.parse('http://localhost:8003/articles'));
 
-      // Send the fields data
       request.fields['article'] = jsonEncode({
         "page": page,
         "author": author,
         "paperName": paperName,
         "subject": subject,
-        "publishDate": publishDate?.toIso8601String(), // Convert DateTime to ISO string
+        "publishDate": publishDate?.toIso8601String(),
         "title": title,
       });
 
-      // For web, send file as bytes
       if (kIsWeb && selectedFileBytes != null) {
         request.files.add(http.MultipartFile.fromBytes(
           'file',
@@ -127,7 +122,6 @@ class _UploadFileState extends State<UploadFile> {
           filename: selectedFileName,
         ));
       } else if (!kIsWeb && selectedFile != null) {
-        // For mobile, send file from path
         request.files.add(await http.MultipartFile.fromPath('file', selectedFile!.path));
       }
 
@@ -136,7 +130,7 @@ class _UploadFileState extends State<UploadFile> {
       if (response.statusCode == 200) {
         setState(() {
           successMessage = "File uploaded successfully!";
-          selectedFile = null; // Clear file selection
+          selectedFile = null;
           selectedFileBytes = null;
           selectedFileName = null;
         });

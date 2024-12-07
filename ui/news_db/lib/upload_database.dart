@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter/foundation.dart'; // For kIsWeb
+import 'package:flutter/foundation.dart';
 
 class UploadDatabase extends StatefulWidget {
   @override
@@ -11,35 +11,32 @@ class UploadDatabase extends StatefulWidget {
 }
 
 class _UploadDatabaseState extends State<UploadDatabase> {
-  File? _file; // Holds the selected file (mobile)
-  Uint8List? _fileBytes; // Holds the selected file's bytes (web)
-  String? _fileName; // Holds the selected file name
-  bool _isUploading = false; // Track upload state
-  String? _error; // Track error message
+  File? _file;
+  Uint8List? _fileBytes;
+  String? _fileName;
+  bool _isUploading = false;
+  String? _error;
 
-  // Handle file selection
   Future<void> pickFile() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.custom,
-      allowedExtensions: ['xml'], // Restrict file selection to XML files
+      allowedExtensions: ['xml'],
     );
 
     if (result != null) {
       if (kIsWeb) {
-        // Web specific: Use file bytes
         if (result.files.single.bytes != null) {
           setState(() {
             _fileBytes = result.files.single.bytes;
             _fileName = result.files.single.name;
-            _error = null; // Clear previous errors
+            _error = null;
           });
         }
       } else {
-        // Mobile specific: Use file path
         if (result.files.single.path != null) {
           setState(() {
             _file = File(result.files.single.path!);
-            _error = null; // Clear previous errors
+            _error = null;
           });
         }
       }
@@ -50,7 +47,6 @@ class _UploadDatabaseState extends State<UploadDatabase> {
     }
   }
 
-  // Handle file upload
   Future<void> uploadFile() async {
     if (_file == null && _fileBytes == null) {
       setState(() {
@@ -74,20 +70,18 @@ class _UploadDatabaseState extends State<UploadDatabase> {
     try {
       final request = http.MultipartRequest(
         'POST',
-        Uri.parse('http://localhost:8003/import-db'), // Replace with actual endpoint
+        Uri.parse('http://localhost:8003/import-db'),
       );
 
-      // For web, send file as bytes
       if (kIsWeb && _fileBytes != null) {
         request.files.add(http.MultipartFile.fromBytes(
-          'file', // Field name for the file in the request
+          'file',
           _fileBytes!,
           filename: _fileName,
         ));
       } else if (!kIsWeb && _file != null) {
-        // For mobile, send file from path
         request.files.add(await http.MultipartFile.fromPath(
-          'file', // Field name for the file in the request
+          'file',
           _file!.path,
         ));
       }
@@ -99,7 +93,7 @@ class _UploadDatabaseState extends State<UploadDatabase> {
           SnackBar(content: Text("Database uploaded successfully!")),
         );
         setState(() {
-          _file = null; // Reset file state after successful upload
+          _file = null;
           _fileBytes = null;
           _fileName = null;
         });

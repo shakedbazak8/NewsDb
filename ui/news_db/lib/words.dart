@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tags/flutter_tags.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'package:intl/intl.dart'; // Import the intl package
+import 'package:intl/intl.dart';
 
 
 class Words extends StatefulWidget {
@@ -16,11 +16,11 @@ class _WordsState extends State<Words> {
   String? title;
   String? page;
   String? author;
-  DateTime? publishDate;  // Changed to DateTime
+  DateTime? publishDate;
   String? subject;
   String? paperName;
-  List<dynamic>? previewData; // Holds detailed data for preview
-  int? previewIndex; // Holds the index of the current word in preview
+  List<dynamic>? previewData;
+  int? previewIndex;
   String previewWord = "";
 
   bool isLoading = false;
@@ -40,21 +40,19 @@ class _WordsState extends State<Words> {
     });
 
     try {
-      // Format the publishDate as 'YYYY-MM-DD' (yyyy-MM-dd)
       String? formattedPublishDate = publishDate != null
-          ? DateFormat('yyyy-MM-dd').format(publishDate!)  // Format as string 'YYYY-MM-DD'
+          ? DateFormat('yyyy-MM-dd').format(publishDate!)
           : null;
 
       final params = {
         "title": title,
         "page": page,
         "author": author,
-        "publishDate": formattedPublishDate,  // Use formatted date
+        "publishDate": formattedPublishDate,
         "subject": subject,
         "paperName": paperName,
       };
 
-      // Remove keys where values are null or empty
       params.removeWhere((key, value) => value == null || value.isEmpty);
 
       final uri = Uri.http('localhost:8003', '/words', params);
@@ -80,7 +78,6 @@ class _WordsState extends State<Words> {
     }
   }
 
-  // Function to show Date Picker
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? picked = await showDatePicker(
       context: context,
@@ -90,7 +87,7 @@ class _WordsState extends State<Words> {
     );
     if (picked != null && picked != publishDate)
       setState(() {
-        publishDate = picked; // Set DateTime object
+        publishDate = picked;
       });
   }
 
@@ -164,23 +161,22 @@ class _WordsState extends State<Words> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
       child: GestureDetector(
-        onTap: () => _selectDate(context), // When tapped, open the date picker
+        onTap: () => _selectDate(context),
         child: AbsorbPointer(
           child: TextFormField(
             decoration: InputDecoration(
               labelText: "Publish Date",
               hintText: publishDate == null
                   ? "Select Date"
-                  : "${publishDate!.toLocal()}".split(' ')[0], // Format DateTime as YYYY-MM-DD
+                  : "${publishDate!.toLocal()}".split(' ')[0],
               border: OutlineInputBorder(),
             ),
-            // The TextFormField should also reflect changes in the publishDate
             controller: TextEditingController(
               text: publishDate == null
                   ? ""
-                  : "${publishDate!.toLocal()}".split(' ')[0], // Display the date in the field
+                  : "${publishDate!.toLocal()}".split(' ')[0],
             ),
-            readOnly: true, // Prevent manual editing, only date picker should modify it
+            readOnly: true,
           ),
         ),
       ),
@@ -231,7 +227,7 @@ class _WordsState extends State<Words> {
 
   Future<void> fetchWordDetails(int index) async {
     try {
-      final word = words[index]; // Get the word for the index
+      final word = words[index];
       final params = {
         "word": word,
       };
@@ -244,7 +240,7 @@ class _WordsState extends State<Words> {
         if (data is List && data.isNotEmpty) {
           setState(() {
             previewData = data;
-            previewIndex = 0; // Start at the first index
+            previewIndex = 0;
             previewWord = word;
           });
         } else {
@@ -272,13 +268,12 @@ class _WordsState extends State<Words> {
   Widget buildPreviewComponent(BuildContext context) {
     return StatefulBuilder(
       builder: (context, setModalState) {
-        // Validate data and index
         final textToDisplay = (previewData != null &&
             previewIndex != null &&
             previewIndex! >= 0 &&
             previewIndex! < previewData!.length)
             ? previewData![previewIndex!]
-            : ""; // Default to empty string if invalid index or data
+            : "";
 
         final wordToHighlight = previewWord;
 
@@ -288,12 +283,11 @@ class _WordsState extends State<Words> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top row with Exit button
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Preview", // Title for the preview section
+                    "Preview",
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   IconButton(
@@ -304,7 +298,7 @@ class _WordsState extends State<Words> {
                         previewIndex = null;
                         previewWord = "";
                       });
-                      Navigator.pop(context); // Close the dialog
+                      Navigator.pop(context);
                     },
                   ),
                 ],
@@ -314,7 +308,6 @@ class _WordsState extends State<Words> {
                   previewIndex != null &&
                   previewIndex! >= 0 &&
                   previewIndex! < previewData!.length) ...[
-                // Show text with highlighted word
                 Text.rich(
                   _highlightWord(textToDisplay, wordToHighlight),
                   style: TextStyle(fontSize: 16),
@@ -330,7 +323,7 @@ class _WordsState extends State<Words> {
                           previewIndex = previewIndex! - 1;
                         });
                       }
-                          : null, // Disable if at the first item
+                          : null
                       child: Text("Previous"),
                     ),
                     ElevatedButton(
@@ -340,14 +333,14 @@ class _WordsState extends State<Words> {
                           previewIndex = previewIndex! + 1;
                         });
                       }
-                          : null, // Disable if at the last item
+                          : null,
                       child: Text("Next"),
                     ),
                   ],
                 ),
               ],
               if (previewData == null || previewIndex == null)
-                Center(child: CircularProgressIndicator()), // Show loader if no data
+                Center(child: CircularProgressIndicator()),
               if (errorMessage != null)
                 Text(
                   errorMessage!,
@@ -368,7 +361,6 @@ class _WordsState extends State<Words> {
     final matches = wordRegex.allMatches(text);
 
     if (matches.isEmpty) {
-      // No match found, return plain text
       return TextSpan(text: text);
     }
 
@@ -376,12 +368,10 @@ class _WordsState extends State<Words> {
     int currentIndex = 0;
 
     for (final match in matches) {
-      // Add text before the match
       if (match.start > currentIndex) {
         spans.add(TextSpan(text: text.substring(currentIndex, match.start)));
       }
 
-      // Add the matched word with a yellow background
       spans.add(TextSpan(
         text: text.substring(match.start, match.end),
         style: TextStyle(
@@ -390,11 +380,9 @@ class _WordsState extends State<Words> {
         ),
       ));
 
-      // Update the current index to the end of the match
       currentIndex = match.end;
     }
 
-    // Add any remaining text after the last match
     if (currentIndex < text.length) {
       spans.add(TextSpan(text: text.substring(currentIndex)));
     }

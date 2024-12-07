@@ -38,7 +38,6 @@ class _WordsIndexState extends State<WordsIndex> {
         "line": line,
       };
 
-      // Remove keys where values are null or empty
       params.removeWhere((key, value) => value == null || value.isEmpty);
 
       final uri = Uri.http('localhost:8003', '/index/words', params);

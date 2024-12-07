@@ -8,14 +8,13 @@ class WordGroup extends StatefulWidget {
 }
 
 class _WordGroupState extends State<WordGroup> {
-  String name = ''; // Group name state
-  List<String> words = []; // List to store words (chips)
-  List<Map<String, dynamic>> wordGroups = []; // List of word groups
-  List<String> availableWords = []; // Available words fetched from API
-  bool isLoading = false; // Loading state
-  String error = ''; // Error message
+  String name = '';
+  List<String> words = [];
+  List<Map<String, dynamic>> wordGroups = [];
+  List<String> availableWords = [];
+  bool isLoading = false;
+  String error = '';
 
-  // Fetch words from API
   Future<void> fetchWords() async {
     setState(() {
       isLoading = true;
@@ -46,7 +45,6 @@ class _WordGroupState extends State<WordGroup> {
     }
   }
 
-  // Handle adding a word to the list
   void handleAddWord(String word) {
     if (word.isNotEmpty && !words.contains(word)) {
       setState(() {
@@ -55,14 +53,12 @@ class _WordGroupState extends State<WordGroup> {
     }
   }
 
-  // Handle removing a word from the list
   void handleRemoveWord(String wordToRemove) {
     setState(() {
       words.remove(wordToRemove);
     });
   }
 
-  // Handle form submission to create a new word group
   void handleCreateWordGroup() async {
     if (name.isNotEmpty && words.isNotEmpty) {
       final newGroup = {'name': name, 'words': words};
@@ -75,11 +71,10 @@ class _WordGroupState extends State<WordGroup> {
         );
 
         if (response.statusCode == 200) {
-          // Refresh word groups
           fetchWords();
           setState(() {
-            name = ''; // Clear group name
-            words = []; // Clear words list
+            name = '';
+            words = [];
           });
         } else {
           setState(() {
@@ -98,7 +93,6 @@ class _WordGroupState extends State<WordGroup> {
     }
   }
 
-  // Fetch words on initialization
   @override
   void initState() {
     super.initState();
@@ -114,7 +108,6 @@ class _WordGroupState extends State<WordGroup> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Error message
             if (error.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 8.0),
@@ -124,7 +117,6 @@ class _WordGroupState extends State<WordGroup> {
                 ),
               ),
 
-            // Word group name input
             TextField(
               onChanged: (value) {
                 setState(() {
@@ -139,7 +131,6 @@ class _WordGroupState extends State<WordGroup> {
 
             SizedBox(height: 10),
 
-            // Word input field
             TextField(
               onSubmitted: (value) {
                 if (value.isNotEmpty) {
@@ -154,7 +145,6 @@ class _WordGroupState extends State<WordGroup> {
 
             SizedBox(height: 10),
 
-            // Chips display
             Wrap(
               spacing: 8.0,
               children: words.map((word) {
@@ -166,7 +156,6 @@ class _WordGroupState extends State<WordGroup> {
               }).toList(),
             ),
 
-            // Available words from API
             isLoading
                 ? CircularProgressIndicator()
                 : availableWords.isNotEmpty
@@ -183,7 +172,6 @@ class _WordGroupState extends State<WordGroup> {
             )
                 : Center(child: Text('No available words')),
 
-            // Create Word Group button
             ElevatedButton(
               onPressed: handleCreateWordGroup,
               child: Text('Create Word Group'),
@@ -191,7 +179,6 @@ class _WordGroupState extends State<WordGroup> {
 
             SizedBox(height: 20),
 
-            // Display existing word groups as cards
             if (wordGroups.isNotEmpty)
               Expanded(
                 child: ListView.builder(

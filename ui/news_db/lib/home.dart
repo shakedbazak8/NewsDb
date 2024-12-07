@@ -31,12 +31,12 @@ class Home extends StatelessWidget {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: UploadDatabase(), // Embed UploadDatabase
+                    child: UploadDatabase(),
                   ),
                   SizedBox(width: 20),
                   Expanded(
                     flex: 1,
-                    child: DownloadDatabase(), // Embed DownloadDatabase
+                    child: DownloadDatabase(),
                   ),
                 ],
               ),
