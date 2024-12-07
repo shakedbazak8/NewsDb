@@ -23,8 +23,8 @@ def get_word_index(text: str) -> List[IndexDTO]:
         lines = get_lines(paragraph)
 
         for line_num, line in enumerate(lines, start=1):
-            words = re.findall(r'\w+', line)
-            # TODO: bug probably here.
+            words = line.split()
+            words = [word for word in words if bool(word)]
             for word in words:
                 words_info.append(
                     IndexDTO(index=word, line=line_num, paragraph=para_num, type=IndexType.WORD)
@@ -34,9 +34,9 @@ def get_word_index(text: str) -> List[IndexDTO]:
 
 def get_group_indexes(text: str, groups: List[WordGroup]) -> List[IndexDTO]:
     groups_info = []
-    paragraphs = text.split("\n\n")
+    paragraphs = get_paragraphs(text)
     for para_num, paragraph in enumerate(paragraphs, start=1):
-        lines = paragraph.split("\n")
+        lines = get_lines(paragraph)
 
         for line_num, line in enumerate(lines, start=1):
             for group in groups:
@@ -50,9 +50,9 @@ def get_group_indexes(text: str, groups: List[WordGroup]) -> List[IndexDTO]:
 
 def get_phrase_indexes(text: str, phrases: List[Phrase]) -> List[IndexDTO]:
     phrases_info = []
-    paragraphs = text.split("\n\n")
+    paragraphs = get_paragraphs(text)
     for para_num, paragraph in enumerate(paragraphs, start=1):
-        lines = paragraph.split("\n")
+        lines = get_lines(paragraph)
 
         for line_num, line in enumerate(lines, start=1):
             for phrase in phrases:
@@ -64,9 +64,12 @@ def get_phrase_indexes(text: str, phrases: List[Phrase]) -> List[IndexDTO]:
 
 
 def get_preview(text, line: int, paragraph: int) -> str:
-    paragraphs = text.split("\n\n")
-    paragraph = paragraphs[paragraph - 1]  # Get entire paragraph
-    lines = paragraph.split("\n")
+    paragraphs = get_paragraphs(text)
+    par = paragraphs[paragraph - 1]  # Get entire paragraph
+    lines = get_lines(par)
+    print(lines)
+    print(line)
     end_offset = line + 1 if line != 1 else line + 2
     start_offset = line - 1 if line != 1 else line
-    return '\n'.join(lines[start_offset: end_offset])
+    print(start_offset, end_offset)
+    return '\n'.join(lines[start_offset - 1: end_offset + 1])

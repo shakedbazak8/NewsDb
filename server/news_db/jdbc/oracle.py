@@ -100,6 +100,8 @@ class OracleJdbc(BaseJdbc):
 
     def _build__index_where_clause(self, index: IndexDTO) -> str:
         raw = index.dict() if index else {}
+        raw['term'] = raw['index']
+        del raw['index']
         terms = []
         for key in raw:
             if raw[key]:
@@ -387,3 +389,10 @@ class OracleJdbc(BaseJdbc):
                 return True
         except Exception as e:
             return False
+
+    def find_article_by_id(self, id: str) -> List[Article]:
+        sql = f"""SELECT * from articles where id = '{id}'"""
+        with self._connection.cursor() as cursor:
+            cursor.execute(sql)
+            rows = self._fetch_article_as_dict(cursor)
+            return [Article(**row) for row in rows]

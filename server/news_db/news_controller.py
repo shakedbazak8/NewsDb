@@ -135,5 +135,5 @@ async def get_stats() -> List[StatsDTO]:
 
 
 @app.get("/preview")
-async def get_preview(article: str, line: int, paragraph: int) -> str:
-    return await service.get_preview(article, line, paragraph)
+async def get_preview(word: str) -> List[str]:
+    return await service.get_preview(word)

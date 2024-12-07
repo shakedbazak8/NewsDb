@@ -136,11 +136,15 @@ class NewsService:
         success_phrases = self._repository.insert_all_phrases(db.phrases)
         return success_phrases and success_groups and success_articles and success_indices
 
-    async def get_preview(self, article: str, line: int, paragraph: int) -> str:
-        articles = self._repository.find_all_by_name(article)
-        if articles:
-            article = articles[0]
-            return get_preview(self._fs.fetch(article.filePath), line, paragraph)
-        else:
-            return ""
+    async def get_preview(self, word: str) -> List[str]:
+        previews = []
+        indices = self._repository.get_by_index(IndexDTO(index=word, type=IndexType.WORD), [])
+        for index in indices:
+            articles = self._repository.find_article_by_id(index.article_id)
+            for article in articles:
+                text = self._fs.fetch(article.filePath)
+                preview = get_preview(text, index.line, index.paragraph)
+                if bool(preview):
+                    previews.append(get_preview(text, index.line, index.paragraph))
+        return previews
 

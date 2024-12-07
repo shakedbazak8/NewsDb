@@ -104,5 +104,9 @@ class BaseJdbc(ABC):
     def insert_all_phrases(self, phrases: List[Phrase]) -> bool:
         pass
 
+    @abstractmethod
+    def find_article_by_id(self, id: str) -> List[Article]:
+        pass
+
 
 
