@@ -67,9 +67,6 @@ def get_preview(text, line: int, paragraph: int) -> str:
     paragraphs = get_paragraphs(text)
     par = paragraphs[paragraph - 1]  # Get entire paragraph
     lines = get_lines(par)
-    print(lines)
-    print(line)
     end_offset = line + 1 if line != 1 else line + 2
     start_offset = line - 1 if line != 1 else line
-    print(start_offset, end_offset)
     return '\n'.join(lines[start_offset - 1: end_offset + 1])

@@ -46,7 +46,6 @@ class OracleJdbc(BaseJdbc):
 
     def find_all(self, article: ArticleDTO) -> List[Article]:
         sql = f"""SELECT articles.* from articles {self._build_where_clause(article)}"""
-        print(sql)
         with self._connection.cursor() as cursor:
             cursor.execute(sql)
             rows = self._fetch_article_as_dict(cursor)
@@ -241,7 +240,6 @@ class OracleJdbc(BaseJdbc):
                 {where_clause} 
             """
         with self._connection.cursor() as cursor:
-            print(sql)
             cursor.execute(sql)
             rows = cursor.fetchall()
             rows = [dict(zip(['article_id', 'index', 'line', 'id', 'paragraph', 'type'], row)) for row in rows]
