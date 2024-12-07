@@ -323,7 +323,7 @@ class _WordsState extends State<Words> {
                           previewIndex = previewIndex! - 1;
                         });
                       }
-                          : null
+                          : null,
                       child: Text("Previous"),
                     ),
                     ElevatedButton(
