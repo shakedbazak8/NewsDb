@@ -73,7 +73,6 @@ class _WordGroupState extends State<WordGroup> {
         if (response.statusCode == 200) {
           fetchWords();
           setState(() {
-            name = '';
             words = [];
           });
         } else {

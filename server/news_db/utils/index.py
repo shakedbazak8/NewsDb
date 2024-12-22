@@ -23,7 +23,7 @@ def get_word_index(text: str) -> List[IndexDTO]:
         lines = get_lines(paragraph)
 
         for line_num, line in enumerate(lines, start=1):
-            words = line.split()
+            words = re.findall(r'[a-zA-Z]+', line)
             words = [word for word in words if bool(word)]
             for word in words:
                 words_info.append(

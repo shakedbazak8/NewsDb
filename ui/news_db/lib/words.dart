@@ -357,7 +357,11 @@ class _WordsState extends State<Words> {
 
 
   TextSpan _highlightWord(String text, String word) {
-    final wordRegex = RegExp(RegExp.escape(word), caseSensitive: false);
+    if (word.isEmpty) {
+      return TextSpan(text: text);
+    }
+
+    final wordRegex = RegExp(r'\b' + RegExp.escape(word) + r'\b', caseSensitive: false);
     final matches = wordRegex.allMatches(text);
 
     if (matches.isEmpty) {
@@ -389,6 +393,7 @@ class _WordsState extends State<Words> {
 
     return TextSpan(children: spans);
   }
+
 
 
 
