@@ -25,7 +25,8 @@ class _UploadFileState extends State<UploadFile> {
 
   Future<void> selectFile() async {
     try {
-      final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: ['txt']);
+      final result = await FilePicker.platform
+          .pickFiles(type: FileType.custom, allowedExtensions: ['txt']);
 
       if (result != null) {
         if (kIsWeb) {
@@ -104,7 +105,8 @@ class _UploadFileState extends State<UploadFile> {
     });
 
     try {
-      final request = http.MultipartRequest('POST', Uri.parse('http://localhost:8003/articles'));
+      final request = http.MultipartRequest(
+          'POST', Uri.parse('http://localhost:8003/articles'));
 
       request.fields['article'] = jsonEncode({
         "page": page,
@@ -122,7 +124,8 @@ class _UploadFileState extends State<UploadFile> {
           filename: selectedFileName,
         ));
       } else if (!kIsWeb && selectedFile != null) {
-        request.files.add(await http.MultipartFile.fromPath('file', selectedFile!.path));
+        request.files
+            .add(await http.MultipartFile.fromPath('file', selectedFile!.path));
       }
 
       final response = await request.send();
@@ -136,7 +139,8 @@ class _UploadFileState extends State<UploadFile> {
         });
       } else {
         setState(() {
-          errorMessage = "Error uploading file. Status code: ${response.statusCode}";
+          errorMessage =
+              "Error uploading file. Status code: ${response.statusCode}";
         });
       }
     } catch (e) {
@@ -170,7 +174,6 @@ class _UploadFileState extends State<UploadFile> {
     return Scaffold(
       appBar: AppBar(
         title: Text("Upload File"),
-        backgroundColor: Color(0xFF3498DB),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -181,27 +184,32 @@ class _UploadFileState extends State<UploadFile> {
               TextFormField(
                 decoration: InputDecoration(labelText: "Title"),
                 onChanged: (value) => title = value,
-                validator: (value) => value!.isEmpty ? "Title is required" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Title is required" : null,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Page"),
                 onChanged: (value) => page = value,
-                validator: (value) => value!.isEmpty ? "Page is required" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Page is required" : null,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Author"),
                 onChanged: (value) => author = value,
-                validator: (value) => value!.isEmpty ? "Author is required" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Author is required" : null,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Subject"),
                 onChanged: (value) => subject = value,
-                validator: (value) => value!.isEmpty ? "Subject is required" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Subject is required" : null,
               ),
               TextFormField(
                 decoration: InputDecoration(labelText: "Paper Name"),
                 onChanged: (value) => paperName = value,
-                validator: (value) => value!.isEmpty ? "Paper Name is required" : null,
+                validator: (value) =>
+                    value!.isEmpty ? "Paper Name is required" : null,
               ),
               SizedBox(height: 20),
               Row(
@@ -250,7 +258,9 @@ class _UploadFileState extends State<UploadFile> {
               SizedBox(height: 20),
               ElevatedButton(
                 onPressed: isUploading ? null : uploadFile,
-                child: isUploading ? CircularProgressIndicator() : Text("Upload File"),
+                child: isUploading
+                    ? CircularProgressIndicator()
+                    : Text("Upload File"),
               ),
             ],
           ),
